@@ -25,9 +25,9 @@ p { margin: 0; }
   position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%;
   filter: blur(60px); opacity: 0.55; animation: drift 22s ease-in-out infinite alternate; will-change: transform;
 }
-.blobs span:nth-child(1) { background: var(--bubblegum); top: -25vmax; left: -20vmax; }
-.blobs span:nth-child(2) { background: var(--sky); top: 30vh; right: -30vmax; animation-delay: -7s; }
-.blobs span:nth-child(3) { background: var(--sunny); bottom: -30vmax; left: -10vmax; animation-delay: -14s; opacity: 0.45; }
+.blobs span:nth-child(1) { background: radial-gradient(circle at 35% 35%, var(--bubblegum), var(--grape) 70%); top: -25vmax; left: -20vmax; }
+.blobs span:nth-child(2) { background: radial-gradient(circle at 60% 40%, var(--sky), var(--mint) 75%); top: 30vh; right: -30vmax; animation-delay: -7s; }
+.blobs span:nth-child(3) { background: radial-gradient(circle at 40% 60%, var(--sunny), var(--peach) 70%); bottom: -30vmax; left: -10vmax; animation-delay: -14s; opacity: 0.5; }
 @keyframes drift { to { transform: translate(8vmax, 6vmax) scale(1.1); } }
 
 /* App shell */
@@ -106,8 +106,8 @@ p { margin: 0; }
 .tab-pill {
   position: absolute; top: 0.4rem; bottom: 0.4rem; left: 0.4rem; will-change: transform;
   width: calc((100% - 0.8rem) / 5); border-radius: 24px;
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: inset 0 1px 0 #fff, 0 6px 14px -6px rgba(91, 60, 170, 0.45);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 200, 228, 0.55) 50%, rgba(200, 215, 255, 0.6));
+  box-shadow: inset 0 1px 1px #fff, inset 0 -1px 2px rgba(179, 155, 255, 0.35), 0 6px 16px -6px rgba(123, 92, 240, 0.5);
   transition: transform 0.5s var(--spring);
 }
 .tab {
@@ -188,8 +188,8 @@ p { margin: 0; }
   font: 800 1rem var(--font-body); color: var(--ink); cursor: pointer; display: flex; align-items: center; gap: 0.7rem;
 }
 .answer .mark { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, 0.7); font-size: 0.85rem; flex: none; }
-.answer.correct { background: linear-gradient(160deg, rgba(127, 227, 192, 0.9), rgba(38, 169, 126, 0.55)); }
-.answer.wrong { background: linear-gradient(160deg, rgba(255, 179, 138, 0.9), rgba(255, 143, 191, 0.55)); animation: wiggle 0.4s; }
+.answer.correct { background: linear-gradient(135deg, rgba(127, 227, 192, 0.9), rgba(143, 208, 255, 0.6) 60%, rgba(38, 169, 126, 0.6)); }
+.answer.wrong { background: linear-gradient(135deg, rgba(255, 179, 138, 0.9), rgba(255, 217, 107, 0.55) 55%, rgba(255, 143, 191, 0.65)); animation: wiggle 0.4s; }
 @keyframes wiggle { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 .feedback { margin-top: 0.9rem; padding: 0.9rem 1rem; border-radius: var(--r-md); font-weight: 700; }
 .feedback strong { display: block; font: 800 1.1rem var(--font-display); }

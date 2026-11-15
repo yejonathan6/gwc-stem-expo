@@ -1,11 +1,11 @@
-import { startRouter, onTabChange, currentTab } from "./router.js?v=202611150137";
-import { initBracelet } from "./bracelet.js?v=202611150137";
-import { initChallenges } from "./challenges.js?v=202611150137";
-import { bitsy } from "./bitsy.js?v=202611150137";
+import { startRouter, onTabChange, currentTab } from "./router.js?v=202611150153";
+import { initBracelet } from "./bracelet.js?v=202611150153";
+import { initChallenges } from "./challenges.js?v=202611150153";
+import { bitsy } from "./bitsy.js?v=202611150153";
 
 // Three.js is loaded lazily from the CDN; the site works fine without it.
 let threePromise = null;
-const load3D = () => (threePromise ??= import("./clay3d.js?v=202611150137"));
+const load3D = () => (threePromise ??= import("./clay3d.js?v=202611150153"));
 
 function webglOK() {
   try {
@@ -35,7 +35,7 @@ async function startHero() {
 let mascot = null, mascotPromise = null;
 function getMascot() {
   if (!has3D) return Promise.resolve(null);
-  return (mascotPromise ??= import("./mascot.js?v=202611150137")
+  return (mascotPromise ??= import("./mascot.js?v=202611150153")
     .then(({ createMascot }) => (mascot = createMascot()))
     .catch((err) => { console.warn("Bitsy 3D unavailable:", err); return null; }));
 }
