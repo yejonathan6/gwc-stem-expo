@@ -1,6 +1,6 @@
 // Three.js clay scenes: a spinning bead bracelet (+ floating clay blobs for the hero)
 import * as THREE from "three";
-import { buildPanda } from "./panda.js";
+import { buildPanda } from "./panda.js?v=202611150109";
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

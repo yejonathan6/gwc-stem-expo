@@ -1,5 +1,5 @@
 // Coding challenges: one card at a time, stars saved on this device
-import { CHALLENGES } from "./challenges-data.js";
+import { CHALLENGES } from "./challenges-data.js?v=202611150109";
 
 const KEY = "gwc-expo-stars";
 

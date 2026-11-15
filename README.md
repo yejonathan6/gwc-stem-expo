@@ -49,3 +49,6 @@ Import this repo into Vercel as a static site. Leave the framework preset set to
 
 ## Editing challenges
 Challenges are in `js/challenges-data.js`.
+
+## Updating the live site
+After you change any files, run `./stamp.sh` before you commit. It adds a new version tag to every script and stylesheet link, so phones load the new files instead of old cached copies.
