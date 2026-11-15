@@ -21,8 +21,8 @@ export function createMascot() {
   scene.add(rim);
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
-  camera.position.set(0.9, 1.55, 6.6);
-  camera.lookAt(0, 1.2, 0);
+  camera.position.set(0.7, 1.45, 5.7);
+  camera.lookAt(0, 1.15, 0);
 
   const panda = buildPanda();
   panda.root.rotation.y = -0.35;

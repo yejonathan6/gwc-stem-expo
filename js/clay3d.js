@@ -110,8 +110,8 @@ export function createBraceletScene(container, opts = {}) {
     let dist, cy = 0;
     if (opts.panda) {
       // Fit the panda's height and the ring's width
-      cy = 0.25;
-      dist = Math.max((radius + 0.45) / (tan * camera.aspect), 1.6 / tan);
+      cy = 0.15;
+      dist = Math.max((radius + 0.6) / (tan * camera.aspect), 2.0 / tan);
     } else {
       const span = radius * 2 + (opts.blobs ? 2.6 : 0.8);
       // Fit full width horizontally, and the (tilted, flatter) ring vertically

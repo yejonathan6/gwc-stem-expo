@@ -127,8 +127,8 @@ export function buildPanda() {
     const g = new THREE.Group();
     g.position.set(0.44 * side, 0.86, -0.05);
     g.rotation.z = -0.4 * side;
-    g.add(blob(C.cream, 0.24, [0, 0.12, 0], [1, 1.2, 0.5]));
-    g.add(blob(C.earIn, 0.15, [0, 0.1, 0.07], [1, 1.15, 0.4]));
+    g.add(blob(C.cream, 0.23, [0, 0.16, 0], [1, 1.45, 0.5]));
+    g.add(blob(C.earIn, 0.14, [0, 0.13, 0.07], [1, 1.45, 0.4]));
     head.add(g);
     return g;
   }
