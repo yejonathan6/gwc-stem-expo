@@ -1,6 +1,6 @@
-// 3D ring of tab cards under the top bar: the current tab sits at the front.
+// Tab navigation: a 3D ring of cards docked at the bottom with the current tab at the front.
 // Drag the ring, tap a card, or swipe the page sideways to switch tabs.
-import { TABS, currentTab, onTabChange } from "./router.js?v=202611150201";
+import { TABS, currentTab, onTabChange } from "./router.js?v=202611150213";
 
 // Each tab appears twice round the ring so neighbours turn only 36° and stay readable
 const N = TABS.length, STEP = 360 / (N * 2), HALF = STEP * N; // HALF = 180°
@@ -10,18 +10,18 @@ const go = (i) => { location.hash = TABS[(i % TABS.length + TABS.length) % TABS.
 export function initTabRing() {
   const ring = document.getElementById("tab-ring");
   const track = ring.querySelector(".ring-track");
-  // Build the cards from the tab bar so labels and icons live in one place
-  const tabs = [...document.querySelectorAll(".tabbar .tab")];
-  const cards = [...tabs, ...tabs].map((a, i) => {
-    const c = document.createElement("a");
-    c.className = "ring-card glass";
-    c.href = a.getAttribute("href");
+  // The five links in the HTML are the real nav; a decorative copy fills the back of the ring
+  const links = [...track.children];
+  const copies = links.map((a) => {
+    const c = a.cloneNode(true);
+    c.removeAttribute("data-tab");
     c.tabIndex = -1;
-    c.innerHTML = a.innerHTML;
-    c.style.transform = `rotateY(${i * STEP}deg) translateZ(var(--ring-r))`;
+    c.setAttribute("aria-hidden", "true");
     track.appendChild(c);
     return c;
   });
+  const cards = [...links, ...copies];
+  cards.forEach((c, i) => { c.style.transform = `rotateY(${i * STEP}deg) translateZ(var(--ring-r))`; });
 
   let angle = 0; // cumulative, so About → Home turns the short way round
   function paint(a) {
@@ -35,6 +35,12 @@ export function initTabRing() {
   onTabChange((tab) => {
     angle += wrap(TABS.indexOf(tab) * STEP - angle, HALF); // nearest of the tab's two cards
     paint(angle);
+  });
+
+  // Keyboard: turn a focused card to the front so its focus ring is visible
+  links.forEach((a, i) => {
+    a.addEventListener("focus", () => paint(angle + wrap(i * STEP - angle, 360))); // this card, not its copy
+    a.addEventListener("blur", () => paint(angle));
   });
 
   // Drag the ring

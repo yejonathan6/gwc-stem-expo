@@ -1,6 +1,6 @@
 // One shared WebGL view of the panda that moves into whichever tab is open.
 import * as THREE from "three";
-import { buildPanda } from "./panda.js?v=202611150201";
+import { buildPanda } from "./panda.js?v=202611150213";
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

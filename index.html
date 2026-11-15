@@ -5,15 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Code Your Adventure ✦ Girls Who Code × OCGS STEM Expo</title>
   <meta name="description" content="Turn your name into binary, solve beginner coding challenges, and find your next coding adventure. Made by Girls Who Code for the OCGS STEM Expo." />
-  <meta name="theme-color" content="#f7f1ff" />
+  <meta name="theme-color" content="#fff7ee" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💗</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=JetBrains+Mono:wght@600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles/tokens.css?v=202611150201" />
-  <link rel="stylesheet" href="styles/clay.css?v=202611150201" />
-  <link rel="stylesheet" href="styles/glass.css?v=202611150201" />
-  <link rel="stylesheet" href="styles/app.css?v=202611150201" />
+  <link rel="stylesheet" href="styles/tokens.css?v=202611150213" />
+  <link rel="stylesheet" href="styles/clay.css?v=202611150213" />
+  <link rel="stylesheet" href="styles/glass.css?v=202611150213" />
+  <link rel="stylesheet" href="styles/app.css?v=202611150213" />
+  <link rel="stylesheet" href="styles/dark.css?v=202611150213" />
+  <script>
+    // Pick the theme before first paint: saved choice, else the system setting
+    try { document.documentElement.dataset.theme = localStorage.getItem("theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"); } catch { document.documentElement.dataset.theme = "light"; }
+  </script>
   <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
   </script>
@@ -26,8 +31,12 @@
     <header class="topbar glass">
       <a class="logo" href="#home">&lt;/&gt; Code Your <b>Adventure</b> ✦</a>
       <span class="chip glass">GWC × OCGS</span>
+      <button class="theme-toggle" id="theme-toggle" type="button" role="switch" aria-checked="false" aria-label="Dark mode">
+        <span class="theme-ico theme-ico--sun" aria-hidden="true">☀</span>
+        <span class="theme-ico theme-ico--moon" aria-hidden="true">☾</span>
+        <span class="theme-thumb" aria-hidden="true"></span>
+      </button>
     </header>
-    <div class="tab-ring" id="tab-ring" aria-hidden="true"><div class="ring-track"></div></div>
 
     <main id="main">
       <!-- HOME -->
@@ -244,15 +253,17 @@
     </main>
   </div>
 
-  <nav class="tabbar glass" aria-label="Sections">
-    <span class="tab-pill" id="tab-pill" aria-hidden="true"></span>
-    <a class="tab" href="#home" data-tab="home"><span class="ico" aria-hidden="true">🏠</span>Home</a>
-    <a class="tab" href="#create" data-tab="create"><span class="ico" aria-hidden="true">💗</span>Create</a>
-    <a class="tab" href="#solve" data-tab="solve"><span class="ico" aria-hidden="true">⭐</span>Solve</a>
-    <a class="tab" href="#play" data-tab="play"><span class="ico" aria-hidden="true">🎮</span>Play</a>
-    <a class="tab" href="#about" data-tab="about"><span class="ico" aria-hidden="true">💜</span>About</a>
+
+  <nav class="tab-ring" id="tab-ring" aria-label="Sections">
+    <div class="ring-track">
+      <a class="ring-card glass" href="#home" data-tab="home"><span class="ico" aria-hidden="true">🏠</span>Home</a>
+      <a class="ring-card glass" href="#create" data-tab="create"><span class="ico" aria-hidden="true">💗</span>Create</a>
+      <a class="ring-card glass" href="#solve" data-tab="solve"><span class="ico" aria-hidden="true">⭐</span>Solve</a>
+      <a class="ring-card glass" href="#play" data-tab="play"><span class="ico" aria-hidden="true">🎮</span>Play</a>
+      <a class="ring-card glass" href="#about" data-tab="about"><span class="ico" aria-hidden="true">💜</span>About</a>
+    </div>
   </nav>
 
-  <script type="module" src="js/main.js?v=202611150201"></script>
+  <script type="module" src="js/main.js?v=202611150213"></script>
 </body>
 </html>
