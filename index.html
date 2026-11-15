@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Code Your Adventure ✦ Girls Who Code × OCGS STEM Expo</title>
+  <meta name="description" content="Turn your name into binary, solve beginner coding challenges, and find your next coding adventure. Made by Girls Who Code for the OCGS STEM Expo." />
+  <meta name="theme-color" content="#f7f1ff" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💗</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=JetBrains+Mono:wght@600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/clay.css" />
+  <link rel="stylesheet" href="styles/glass.css" />
+  <link rel="stylesheet" href="styles/app.css" />
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="blobs" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <div class="app">
+    <header class="topbar glass">
+      <a class="logo" href="#home">&lt;/&gt; Code Your <b>Adventure</b> ✦</a>
+      <span class="chip glass">GWC × OCGS</span>
+    </header>
+
+    <main id="main">
+      <!-- HOME -->
+      <section class="panel" id="tab-home" data-tab="home" tabindex="-1" aria-labelledby="home-title">
+        <div class="clay hero">
+          <div class="hero-stage clay--grape" id="hero-stage">
+            <div class="hero-fallback" aria-hidden="true">💗</div>
+            <span class="hero-badge glass" aria-hidden="true">G W C = 24 beads</span>
+          </div>
+          <div class="hero-copy">
+            <p class="kicker">✦ Girls Who Code × OCGS STEM Expo</p>
+            <h1 id="home-title">Hey, Future Coder! <span>♥</span></h1>
+            <p>Turn your ideas into code and explore the world of computer science. Pick an adventure below!</p>
+          </div>
+        </div>
+
+        <nav class="tiles" aria-label="Adventures">
+          <a class="tile clay clay--pink clay-press" href="#create">
+            <span class="emoji" aria-hidden="true">💗</span>
+            <span><strong>Create</strong><small>Turn your name into binary</small></span>
+          </a>
+          <a class="tile clay clay--sunny clay-press" href="#solve">
+            <span class="emoji" aria-hidden="true">⭐</span>
+            <span><strong>Solve</strong><small>Challenge your coding brain</small></span>
+          </a>
+          <a class="tile clay clay--mint clay-press" href="#play">
+            <span class="emoji" aria-hidden="true">🎮</span>
+            <span><strong>Play</strong><small>Find your next coding game</small></span>
+          </a>
+          <a class="tile clay clay--sky clay-press" href="#about">
+            <span class="emoji" aria-hidden="true">💜</span>
+            <span><strong>About</strong><small>Meet Girls Who Code</small></span>
+          </a>
+        </nav>
+        <p class="tagline">No experience needed. Just bring your curiosity ✦</p>
+      </section>
+
+      <!-- CREATE -->
+      <section class="panel" id="tab-create" data-tab="create" tabindex="-1" aria-labelledby="create-title" hidden>
+        <div class="panel-head">
+          <p class="kicker">01 · Make something uniquely you</p>
+          <h1 id="create-title">Code Your Name! ♡</h1>
+          <p>Computers store every letter as 0s and 1s called <b>bits</b>. Each capital letter uses 8 bits — and each bit becomes one bead on your bracelet.</p>
+        </div>
+
+        <div class="stack">
+          <div class="clay card">
+            <label class="field-label" for="name-input">Your name or initials</label>
+            <input class="text-input clay-well" id="name-input" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24" placeholder="ADA" aria-describedby="name-hint" />
+            <p class="note" id="name-hint" style="margin-top:.45rem">Letters A–Z only, up to 24. <b>Expo tip:</b> initials make a shorter bracelet!</p>
+
+            <div class="swatches">
+              <label class="swatch glass">
+                <span class="bead" id="sw0" style="background:#ff8fbf">0</span>
+                <span style="white-space:nowrap">Color for 0</span>
+                <input type="color" id="color0" value="#ff8fbf" />
+              </label>
+              <label class="swatch glass">
+                <span class="bead" id="sw1" style="background:#b39bff">1</span>
+                <span style="white-space:nowrap">Color for 1</span>
+                <input type="color" id="color1" value="#b39bff" />
+              </label>
+            </div>
+          </div>
+
+          <div class="clay card">
+            <h2>Your beads</h2>
+            <div class="bead-rows clay-well" id="bead-rows" aria-live="polite">
+              <p class="empty">Type above to see your binary beads ✨</p>
+            </div>
+            <div class="bracelet-3d clay-well" id="bracelet-3d" hidden aria-label="Your bracelet in 3D. Drag to spin." role="img"></div>
+            <div class="legend" style="margin:.8rem 0">
+              <span><span class="bead" id="lg0" style="display:inline-block;vertical-align:middle;background:#ff8fbf"></span> 0 bead</span>
+              <span><span class="bead" id="lg1" style="display:inline-block;vertical-align:middle;background:#b39bff"></span> 1 bead</span>
+              <span>Read left → right</span>
+            </div>
+            <div class="stack">
+              <button class="btn btn--grape btn--block glass" id="toggle-3d" type="button" disabled>🌀 Spin it in 3D</button>
+              <div class="btn-row">
+                <button class="btn glass" id="copy-btn" type="button" disabled>⧉ Copy code</button>
+                <button class="btn glass" id="reset-btn" type="button">↻ Start over</button>
+              </div>
+              <button class="btn glass btn--block" id="alpha-btn" type="button">📖 Binary alphabet (A–Z)</button>
+            </div>
+          </div>
+
+          <p class="note-box glass">🔒 Everything happens on this device. Your name is never saved or sent anywhere.</p>
+        </div>
+      </section>
+
+      <!-- SOLVE -->
+      <section class="panel" id="tab-solve" data-tab="solve" tabindex="-1" aria-labelledby="solve-title" hidden>
+        <div class="panel-head">
+          <p class="kicker">02 · A little challenge, a big confidence boost</p>
+          <h1 id="solve-title">Level Up! ✦</h1>
+          <p>Three tiny puzzles. Earn a star for each one you crack — you can try as many times as you like.</p>
+        </div>
+        <div class="stack">
+          <div class="stars glass" style="border-radius:var(--r-pill)">
+            <div class="row" id="star-row" aria-hidden="true"><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span></div>
+            <strong id="star-count" aria-live="polite">0 of 3 stars</strong>
+          </div>
+          <div id="challenge-root"></div>
+        </div>
+      </section>
+
+      <!-- PLAY -->
+      <section class="panel" id="tab-play" data-tab="play" tabindex="-1" aria-labelledby="play-title" hidden>
+        <div class="panel-head">
+          <p class="kicker">03 · Keep that curiosity going</p>
+          <h1 id="play-title">Your Adventure Continues! 🎮</h1>
+          <p>Free coding sites to explore at home.</p>
+        </div>
+        <div class="stack">
+          <p class="note-box glass">👋 These links open other websites. Ask a trusted adult before creating an account.</p>
+
+          <article class="site-card clay clay--peach">
+            <span class="emoji" aria-hidden="true">🐈</span>
+            <div>
+              <p class="vibe">Imagine + Create</p>
+              <h2>Scratch</h2>
+              <p>Make games, animations, and interactive stories with code blocks.</p>
+              <p class="try">Try: animate your name!</p>
+              <a class="btn btn--pink glass" href="https://scratch.mit.edu/" target="_blank" rel="noopener">Start creating ↗</a>
+            </div>
+          </article>
+
+          <article class="site-card clay clay--sky">
+            <span class="emoji" aria-hidden="true">{ }</span>
+            <div>
+              <p class="vibe">Puzzle + Discover</p>
+              <h2>Code.org</h2>
+              <p>Learn to code through fun puzzles and activities.</p>
+              <p class="try">Try: an Hour of Code activity.</p>
+              <a class="btn btn--grape glass" href="https://code.org/" target="_blank" rel="noopener">Start learning ↗</a>
+            </div>
+          </article>
+
+          <article class="site-card clay clay--mint">
+            <span class="emoji" aria-hidden="true">👾</span>
+            <div>
+              <p class="vibe">Build + Play</p>
+              <h2>MakeCode Arcade</h2>
+              <p>Build your own pixel-style video games.</p>
+              <p class="try">Try: make a character move.</p>
+              <a class="btn btn--pink glass" href="https://arcade.makecode.com/" target="_blank" rel="noopener">Make a game ↗</a>
+            </div>
+          </article>
+
+          <article class="site-card clay clay--sunny">
+            <span class="emoji" aria-hidden="true">🧩</span>
+            <div>
+              <p class="vibe">Connect + Solve</p>
+              <h2>Blockly Games</h2>
+              <p>Puzzles that show how coding works, one block at a time.</p>
+              <p class="try">Try: start with Puzzle, then Maze.</p>
+              <a class="btn btn--grape glass" href="https://blockly.games/" target="_blank" rel="noopener">Play now ↗</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section class="panel" id="tab-about" data-tab="about" tabindex="-1" aria-labelledby="about-title" hidden>
+        <div class="panel-head">
+          <p class="kicker">A community for your big ideas</p>
+          <h1 id="about-title">Girls Who Code 💜</h1>
+        </div>
+        <div class="stack">
+          <div class="ribbon" aria-label="curiosity leads to creativity leads to possibility">
+            <span class="clay clay--pink">curiosity</span><span aria-hidden="true">→</span>
+            <span class="clay clay--sunny">creativity</span><span aria-hidden="true">→</span>
+            <span class="clay clay--mint">possibility</span>
+          </div>
+          <div class="clay card">
+            <p style="font:700 .9rem var(--font-mono);color:var(--grape-deep);margin-bottom:.5rem">&lt; girls who code /&gt; ♥</p>
+            <p>We're a college club on a mission to make computer science fun, creative, and open to everyone. We believe <b>anyone can learn to code</b> — including you!</p>
+          </div>
+          <div class="clay card clay--grape">
+            <h2>Thank you, OCGS STEM Expo! 🚀</h2>
+            <p>Thanks for stopping by and coding with us. The future of tech is yours to create!</p>
+          </div>
+          <a class="btn btn--pink btn--block glass" href="https://girlswhocode.com/" target="_blank" rel="noopener">Visit girlswhocode.com ↗</a>
+          <div class="footer-links">
+            <span>Made with 💗 by Girls Who Code</span>
+            <a href="#home">Back to home ↑</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="tabbar glass" aria-label="Sections">
+    <span class="tab-pill" id="tab-pill" aria-hidden="true"></span>
+    <a class="tab" href="#home" data-tab="home"><span class="ico" aria-hidden="true">🏠</span>Home</a>
+    <a class="tab" href="#create" data-tab="create"><span class="ico" aria-hidden="true">💗</span>Create</a>
+    <a class="tab" href="#solve" data-tab="solve"><span class="ico" aria-hidden="true">⭐</span>Solve</a>
+    <a class="tab" href="#play" data-tab="play"><span class="ico" aria-hidden="true">🎮</span>Play</a>
+    <a class="tab" href="#about" data-tab="about"><span class="ico" aria-hidden="true">💜</span>About</a>
+  </nav>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

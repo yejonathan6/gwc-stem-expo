@@ -1,0 +1,59 @@
+/* Liquid glass: translucent fill, blur, bright rim, top specular highlight */
+.glass {
+  position: relative;
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: var(--glass-rim);
+  box-shadow: var(--glass-shadow);
+  isolation: isolate;
+}
+/* Specular highlight across the top edge */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 1px 8% auto 8%;
+  height: 45%;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0));
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Glass button */
+.btn {
+  appearance: none;
+  border-radius: var(--r-pill);
+  min-height: 48px;
+  padding: 0 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font: 800 1rem var(--font-body);
+  color: var(--ink);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.25s var(--spring), background 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(0.95); }
+.btn:focus-visible, .tab:focus-visible, .tile:focus-visible, .answer:focus-visible {
+  outline: 3px solid var(--grape-deep);
+  outline-offset: 3px;
+}
+
+/* Tinted glass variants: color shows through the glass */
+.btn--pink  { background: linear-gradient(160deg, rgba(255, 143, 191, 0.75), rgba(232, 85, 154, 0.55)); color: #3a0f2a; }
+.btn--grape { background: linear-gradient(160deg, rgba(179, 155, 255, 0.75), rgba(123, 92, 240, 0.55)); color: #1f1150; }
+.btn--block { width: 100%; }
+
+/* Fallbacks */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background: rgba(255, 255, 255, 0.92); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass { background: #fff; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .glass::before { display: none; }
+}

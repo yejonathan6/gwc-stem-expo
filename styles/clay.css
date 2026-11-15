@@ -1,0 +1,41 @@
+/* Claymorphism surfaces: inflated, soft, two inner shadows + one outer shadow */
+.clay {
+  border-radius: var(--r-lg);
+  background: var(--cream);
+  box-shadow: var(--clay);
+  position: relative;
+}
+
+.clay--pink   { background: linear-gradient(150deg, #ffb0d3, var(--bubblegum)); }
+.clay--grape  { background: linear-gradient(150deg, #cdbdff, var(--grape)); }
+.clay--mint   { background: linear-gradient(150deg, #a8f0d6, var(--mint)); }
+.clay--sky    { background: linear-gradient(150deg, #b6e1ff, var(--sky)); }
+.clay--sunny  { background: linear-gradient(150deg, #ffe79f, var(--sunny)); }
+.clay--peach  { background: linear-gradient(150deg, #ffcfb3, var(--peach)); }
+
+/* Tappable clay squishes when pressed */
+.clay-press {
+  transition: transform 0.25s var(--spring), box-shadow 0.25s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.clay-press:active { transform: scale(0.96); box-shadow: var(--clay-pressed); }
+
+/* Small clay inset well (inputs, code boxes) */
+.clay-well {
+  border-radius: var(--r-md);
+  background: #fff;
+  box-shadow: inset 4px 5px 10px rgba(43, 33, 80, 0.12), inset -4px -5px 10px rgba(255, 255, 255, 0.9);
+}
+
+/* Bead (used in bracelet + challenge) */
+.bead {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font: 700 0.8rem var(--font-mono);
+  color: rgba(43, 33, 80, 0.75);
+  box-shadow: 0 6px 10px -4px rgba(43, 33, 80, 0.35), inset -3px -4px 6px rgba(43, 33, 80, 0.2), inset 3px 4px 6px rgba(255, 255, 255, 0.7);
+  flex: none;
+}
