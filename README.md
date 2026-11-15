@@ -10,6 +10,27 @@ A mobile-first site for the Girls Who Code booth at the OCGS STEM Expo. It's a r
 - **Play**: Scratch, Code.org, MakeCode Arcade, Blockly Games.
 - **About**: the Girls Who Code club.
 
+## Bitsy the red panda
+Bitsy is a clay red panda built from three.js shapes in `js/panda.js`. A different animation plays on each tab:
+
+| Tab | Animation |
+|---|---|
+| Home | Hula-hoops inside the GWC bead bracelet |
+| Create | Strings a ring of beads |
+| Solve | Thinks, with a paw on the chin |
+| Play | Hops |
+| About | Sways under a floating clay heart |
+
+Bitsy also reacts to what visitors do:
+- Taps: a wiggle.
+- Typing: reads out the newest letter in binary.
+- Right answers: a cheer and a spin.
+- Wrong answers: shakes its head.
+
+Any feature can trigger a reaction with `bitsy(kind, line)` from `js/bitsy.js`. The kinds are `cheer`, `oops`, `happy` and `tap`.
+
+If 3D isn't available, the site shows `assets/red-panda.webp` with CSS animations instead.
+
 ## Design
 - **Clay** (`styles/clay.css`) for cards and tiles: big radius, a light top-left inner shadow, a dark bottom-right inner shadow and one outer Y shadow.
 - **Liquid glass** (`styles/glass.css`) for buttons, the tab bar, the header and sheets: blur, saturation, a bright rim and a top highlight. It falls back to solid white when "reduce transparency" is on.
