@@ -1,6 +1,6 @@
 // Binary Bracelet studio
-import { cleanName, nameToBits, ALPHABET } from "./binary.js?v=202611150335";
-import { toast, openSheet } from "./ui.js?v=202611150335";
+import { cleanName, nameToBits, ALPHABET } from "./binary.js?v=202611150341";
+import { toast, openSheet } from "./ui.js?v=202611150341";
 
 export function initBracelet({ load3D, bitsy = () => {} }) {
   let lastCheer = 0;

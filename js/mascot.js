@@ -2,7 +2,7 @@
 // for each page's buddy stage. Every stage whose page is on screen animates each frame, so a
 // page sliding in during a swipe is already alive (no frozen frame, no swap when it lands).
 import * as THREE from "three";
-import { buildPanda } from "./panda.js?v=202611150335";
+import { buildPanda } from "./panda.js?v=202611150341";
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
