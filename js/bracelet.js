@@ -1,6 +1,6 @@
 // Binary Bracelet studio
-import { cleanName, nameToBits, ALPHABET } from "./binary.js?v=202611150213";
-import { toast, openSheet } from "./ui.js?v=202611150213";
+import { cleanName, nameToBits, ALPHABET } from "./binary.js?v=202611150309";
+import { toast, openSheet } from "./ui.js?v=202611150309";
 
 export function initBracelet({ load3D, bitsy = () => {} }) {
   let lastCheer = 0;
@@ -18,12 +18,11 @@ export function initBracelet({ load3D, bitsy = () => {} }) {
 
   const allBits = () => nameToBits(cleanName(input.value)).join("");
 
+  // Every 0/1 bead on the Create tab reads its colour from these two variables (see .bead[data-bit])
+  const panel = document.getElementById("tab-create");
   function paintSwatches() {
-    for (const id of ["sw0", "lg0"]) document.getElementById(id).style.background = c0.value;
-    for (const id of ["sw1", "lg1"]) document.getElementById(id).style.background = c1.value;
-    rows.style.setProperty("--c0", c0.value);
-    rows.style.setProperty("--c1", c1.value);
-    rows.querySelectorAll(".bead").forEach((b) => { b.style.background = b.dataset.bit === "1" ? c1.value : c0.value; });
+    panel.style.setProperty("--c0", c0.value);
+    panel.style.setProperty("--c1", c1.value);
     scene3D?.setColors(c0.value, c1.value);
   }
 
@@ -45,7 +44,7 @@ export function initBracelet({ load3D, bitsy = () => {} }) {
         row.style.animationDelay = `${Math.min(i, 8) * 40}ms`;
         row.setAttribute("aria-label", `${name[i]}: ${bits.split("").join(" ")}`);
         row.innerHTML = `<span class="letter" aria-hidden="true">${name[i]}</span>` +
-          [...bits].map((b) => `<span class="bead" data-bit="${b}" aria-hidden="true" style="background:${b === "1" ? c1.value : c0.value}">${b}</span>`).join("");
+          [...bits].map((b) => `<span class="bead" data-bit="${b}" aria-hidden="true">${b}</span>`).join("");
         rows.appendChild(row);
       });
     }

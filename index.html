@@ -10,11 +10,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=JetBrains+Mono:wght@600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles/tokens.css?v=202611150213" />
-  <link rel="stylesheet" href="styles/clay.css?v=202611150213" />
-  <link rel="stylesheet" href="styles/glass.css?v=202611150213" />
-  <link rel="stylesheet" href="styles/app.css?v=202611150213" />
-  <link rel="stylesheet" href="styles/dark.css?v=202611150213" />
+  <link rel="stylesheet" href="styles/tokens.css?v=202611150309" />
+  <link rel="stylesheet" href="styles/clay.css?v=202611150309" />
+  <link rel="stylesheet" href="styles/glass.css?v=202611150309" />
+  <link rel="stylesheet" href="styles/app.css?v=202611150309" />
+  <link rel="stylesheet" href="styles/dark.css?v=202611150309" />
   <script>
     // Pick the theme before first paint: saved choice, else the system setting
     try { document.documentElement.dataset.theme = localStorage.getItem("theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"); } catch { document.documentElement.dataset.theme = "light"; }
@@ -96,12 +96,12 @@
 
             <div class="swatches">
               <label class="swatch glass">
-                <span class="bead" id="sw0" style="background:#ff8fbf">0</span>
+                <span class="bead" data-bit="0">0</span>
                 <span style="white-space:nowrap">Color for 0</span>
                 <input type="color" id="color0" value="#ff8fbf" />
               </label>
               <label class="swatch glass">
-                <span class="bead" id="sw1" style="background:#b39bff">1</span>
+                <span class="bead" data-bit="1">1</span>
                 <span style="white-space:nowrap">Color for 1</span>
                 <input type="color" id="color1" value="#b39bff" />
               </label>
@@ -115,8 +115,8 @@
             </div>
             <div class="bracelet-3d clay-well" id="bracelet-3d" hidden aria-label="Your bracelet in 3D. Drag to spin." role="img"></div>
             <div class="legend" style="margin:.8rem 0">
-              <span><span class="bead" id="lg0" style="display:inline-block;vertical-align:middle;background:#ff8fbf"></span> 0 bead</span>
-              <span><span class="bead" id="lg1" style="display:inline-block;vertical-align:middle;background:#b39bff"></span> 1 bead</span>
+              <span><span class="bead" data-bit="0" style="display:inline-block;vertical-align:middle"></span> 0 bead</span>
+              <span><span class="bead" data-bit="1" style="display:inline-block;vertical-align:middle"></span> 1 bead</span>
               <span>Read left → right</span>
             </div>
             <div class="stack">
@@ -264,6 +264,6 @@
     </div>
   </nav>
 
-  <script type="module" src="js/main.js?v=202611150213"></script>
+  <script type="module" src="js/main.js?v=202611150309"></script>
 </body>
 </html>

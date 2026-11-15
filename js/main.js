@@ -1,13 +1,14 @@
-import { startRouter, onTabChange, currentTab } from "./router.js?v=202611150213";
-import { initBracelet } from "./bracelet.js?v=202611150213";
-import { initChallenges } from "./challenges.js?v=202611150213";
-import { initTheme } from "./theme.js?v=202611150213";
-import { initTabRing } from "./tabring.js?v=202611150213";
-import { bitsy } from "./bitsy.js?v=202611150213";
+import { startRouter, onTabChange, currentTab } from "./router.js?v=202611150309";
+import { initBracelet } from "./bracelet.js?v=202611150309";
+import { initChallenges } from "./challenges.js?v=202611150309";
+import { initTheme } from "./theme.js?v=202611150309";
+import { initTabRing } from "./tabring.js?v=202611150309";
+import { bitsy } from "./bitsy.js?v=202611150309";
+import { nameToBits } from "./binary.js?v=202611150309";
 
 // Three.js is loaded lazily from the CDN; the site works fine without it.
 let threePromise = null;
-const load3D = () => (threePromise ??= import("./clay3d.js?v=202611150213"));
+const load3D = () => (threePromise ??= import("./clay3d.js?v=202611150309"));
 
 function webglOK() {
   try {
@@ -17,27 +18,26 @@ function webglOK() {
 }
 const has3D = webglOK();
 
-// ---- Home hero: the GWC bead bracelet ----
-let hero = null;
+// ---- Home hero: the GWC bead bracelet. It animates whenever Home is on screen (including while
+// sliding in during a swipe) and pauses itself when off screen. ----
 async function startHero() {
   const stage = document.getElementById("hero-stage");
   if (!has3D) return;
   try {
     const { createBraceletScene } = await load3D();
     // "GWC" in binary = 24 beads
-    const bits = [..."GWC"].map((c) => c.charCodeAt(0).toString(2).padStart(8, "0")).join("");
-    hero = createBraceletScene(stage, { bits, colors: ["#ff8fbf", "#fffaf3"], blobs: true });
+    createBraceletScene(stage, { bits: nameToBits("GWC").join(""), colors: ["#ff8fbf", "#fffaf3"], blobs: true });
     stage.classList.add("has-3d");
   } catch (err) {
     console.warn("3D hero unavailable:", err);
   }
 }
 
-// ---- Bitsy buddy on the other tabs (one shared 3D view) ----
+// ---- Bitsy buddy on the other tabs (a panda per page, one shared renderer) ----
 let mascot = null, mascotPromise = null;
 function getMascot() {
   if (!has3D) return Promise.resolve(null);
-  return (mascotPromise ??= import("./mascot.js?v=202611150213")
+  return (mascotPromise ??= import("./mascot.js?v=202611150309")
     .then(({ createMascot }) => (mascot = createMascot()))
     .catch((err) => { console.warn("Bitsy 3D unavailable:", err); return null; }));
 }
@@ -47,7 +47,7 @@ async function showBuddy(tab) {
   const m = await getMascot();
   if (!m) return;
   if (currentTab() !== tab) return;       // user already moved on
-  if (stage) m.attach(stage, stage.dataset.mode);
+  if (stage) m.attach(stage); // reactions go to this page's panda
   else m.detach();
 }
 
@@ -55,8 +55,7 @@ async function showBuddy(tab) {
 const bubbleTimers = new WeakMap();
 window.addEventListener("bitsy", (e) => {
   const { kind, line } = e.detail;
-  if (currentTab() === "home") hero?.react(kind);
-  else mascot?.react(kind);
+  mascot?.react(kind);
   const bubble = document.querySelector(`#tab-${currentTab()} .buddy-bubble`);
   if (!bubble || !line) return;
   bubble.textContent = line;
@@ -65,8 +64,8 @@ window.addEventListener("bitsy", (e) => {
   bubbleTimers.set(bubble, setTimeout(() => { bubble.textContent = bubble.dataset.line; }, 3500));
 });
 
-// Fallback image: tapping it still gets a little bounce
-document.querySelectorAll(".buddy-fallback, img.hero-fallback").forEach((img) => {
+// Fallback image (no WebGL): tapping it still gets a little bounce
+document.querySelectorAll(".buddy-fallback").forEach((img) => {
   img.addEventListener("click", () => img.animate([{ transform: "scale(1)" }, { transform: "scale(1.12, 0.9)" }, { transform: "scale(1)" }], { duration: 400 }));
 });
 
@@ -79,10 +78,13 @@ initTabRing();
 initTheme();
 
 onTabChange((tab) => {
-  hero?.setActive(tab === "home");
   bracelet.setActive(tab === "create");
   if (tab === "home") mascot?.detach();
   else showBuddy(tab);
 });
 startRouter();
-startHero().then(() => hero?.setActive(currentTab() === "home"));
+// Load the pandas early so pages are already animated when they slide in: while idle after
+// the hero starts, or the moment the ring is touched, whichever comes first.
+const ring = document.getElementById("tab-ring");
+["pointerdown", "touchstart"].forEach((t) => ring.addEventListener(t, () => getMascot(), { passive: true, once: true }));
+startHero().then(() => (window.requestIdleCallback || setTimeout)(() => getMascot()));

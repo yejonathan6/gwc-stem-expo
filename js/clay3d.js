@@ -1,6 +1,5 @@
 // Three.js clay scenes: a spinning bead bracelet (+ floating clay blobs for the hero)
 import * as THREE from "three";
-import { buildPanda } from "./panda.js?v=202611150213";
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -69,20 +68,6 @@ export function createBraceletScene(container, opts = {}) {
     renderOnce();
   }
 
-  // Hula-hooping red panda inside the bracelet (hero only)
-  let panda = null;
-  if (opts.panda) {
-    panda = buildPanda();
-    panda.setMode("hula");
-    const holder = new THREE.Group();
-    holder.position.y = -1.0;
-    holder.scale.setScalar(0.95);
-    holder.add(panda.root);
-    scene.add(holder);
-    tilt.position.y = -1.0 + 0.72 * 0.95;   // ring sits at the panda's waist
-    tilt.rotation.x = 0.35;
-  }
-
   // Floating clay blobs (hero only)
   const blobs = [];
   if (opts.blobs) {
@@ -95,7 +80,6 @@ export function createBraceletScene(container, opts = {}) {
     for (const d of defs) {
       const m = new THREE.Mesh(d.geo, clayMaterial(d.color));
       m.position.set(...d.pos);
-      if (opts.panda) m.position.x *= 0.82;
       m.userData.base = m.position.y;
       m.userData.phase = Math.random() * Math.PI * 2;
       scene.add(m);
@@ -107,18 +91,11 @@ export function createBraceletScene(container, opts = {}) {
     const w = container.clientWidth || 1, h = container.clientHeight || 1;
     camera.aspect = w / h;
     const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
-    let dist, cy = 0;
-    if (opts.panda) {
-      // Fit the panda's height and the ring's width
-      cy = 0.15;
-      dist = Math.max((radius + 0.6) / (tan * camera.aspect), 2.0 / tan);
-    } else {
-      const span = radius * 2 + (opts.blobs ? 2.6 : 0.8);
-      // Fit full width horizontally, and the (tilted, flatter) ring vertically
-      dist = Math.max((span * 0.55) / (tan * camera.aspect), (span * 0.4) / tan);
-    }
-    camera.position.set(0, cy, dist);
-    camera.lookAt(0, cy, 0);
+    const span = radius * 2 + (opts.blobs ? 2.6 : 0.8);
+    // Fit full width horizontally, and the (tilted, flatter) ring vertically
+    const dist = Math.max((span * 0.55) / (tan * camera.aspect), (span * 0.4) / tan);
+    camera.position.set(0, 0, dist);
+    camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
   }
 
@@ -133,30 +110,27 @@ export function createBraceletScene(container, opts = {}) {
   ro.observe(container);
 
   // Drag to spin, with inertia
-  let velocity = reduceMotion ? 0 : 0.006, dragging = false, lastX = 0, moved = 0;
+  let velocity = reduceMotion ? 0 : 0.006, dragging = false, lastX = 0;
   const el = renderer.domElement;
-  el.addEventListener("pointerdown", (e) => { dragging = true; moved = 0; lastX = e.clientX; el.setPointerCapture(e.pointerId); });
+  el.addEventListener("pointerdown", (e) => { dragging = true; lastX = e.clientX; el.setPointerCapture(e.pointerId); });
   el.addEventListener("pointermove", (e) => {
     if (!dragging) return;
     const dx = e.clientX - lastX;
     lastX = e.clientX;
-    moved += Math.abs(dx);
     ring.rotation.y += dx * 0.01;
     velocity = dx * 0.002;
     if (!running) renderOnce();
   });
   const end = () => { dragging = false; };
-  el.addEventListener("pointerup", () => { if (dragging && moved < 6) panda?.react("happy"); end(); });
+  el.addEventListener("pointerup", end);
   el.addEventListener("pointercancel", end);
 
   // Render loop only while visible + active
-  let running = false, active = true, onScreen = true, raf = 0, last = 0;
+  let running = false, active = true, onScreen = true, raf = 0;
   const clock = new THREE.Clock();
   function frame() {
     if (!running) return;
     const t = clock.getElapsedTime();
-    panda?.update(t, Math.max(0, Math.min(0.05, t - last)));
-    last = t;
     if (!dragging) {
       ring.rotation.y += velocity;
       const idle = reduceMotion ? 0 : 0.006;
@@ -181,7 +155,6 @@ export function createBraceletScene(container, opts = {}) {
   io.observe(container);
   document.addEventListener("visibilitychange", update);
 
-  panda?.update(0, 0.016);
   setBits(opts.bits || "");
   resize();
   update();
@@ -190,11 +163,5 @@ export function createBraceletScene(container, opts = {}) {
     setBits,
     setColors,
     setActive(v) { active = v; update(); },
-    react(kind) { panda?.react(kind); },
-    dispose() {
-      running = false; cancelAnimationFrame(raf); ro.disconnect(); io.disconnect();
-      document.removeEventListener("visibilitychange", update);
-      renderer.dispose(); el.remove();
-    },
   };
 }

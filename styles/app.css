@@ -11,7 +11,6 @@ body {
 h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; margin: 0; }
 p { margin: 0; }
 [hidden] { display: none !important; }
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .skip {
   position: absolute; left: 1rem; top: -60px; z-index: 100;
@@ -85,14 +84,10 @@ p { margin: 0; }
   padding: 0.35rem 0.7rem; border-radius: var(--r-pill); color: var(--grape-deep); white-space: nowrap;
 }
 
-/* Panels (tabs) */
-.panel { animation: panel-in 0.45s var(--ease); }
+/* Panels (tabs). Moving between them is driven frame-by-frame by js/tabring.js. */
 .panel:focus { outline: none; }
+.panel { transform-origin: 50% 0; } /* pages shrink toward their top while sliding */
 @keyframes panel-in { from { opacity: 0; transform: translateY(14px) scale(0.98); } }
-main[data-dir="next"] > .panel { animation-name: panel-from-right; }
-main[data-dir="prev"] > .panel { animation-name: panel-from-left; }
-@keyframes panel-from-right { from { opacity: 0; transform: translateX(48px) scale(0.98); } }
-@keyframes panel-from-left { from { opacity: 0; transform: translateX(-48px) scale(0.98); } }
 
 /* Circular tab carousel docked at the bottom: cards on a 3D cylinder, current tab at the front */
 .tab-ring {
@@ -109,15 +104,18 @@ main[data-dir="prev"] > .panel { animation-name: panel-from-left; }
   -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
   -webkit-mask: linear-gradient(0deg, #000 70%, transparent); mask: linear-gradient(0deg, #000 70%, transparent);
 }
-.ring-track { position: relative; height: 100%; transform-style: preserve-3d; transition: transform 0.7s var(--spring); }
-.tab-ring.dragging .ring-track { transition: none; }
+.ring-track { position: relative; height: 100%; transform-style: preserve-3d; will-change: transform; } /* moved by js/tabring.js physics */
 .ring-card {
   position: absolute; left: 50%; top: 6px; width: 96px; height: 78px; margin-left: -48px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   border-radius: 24px; color: var(--ink-soft); font: 800 0.8rem var(--font-body); text-decoration: none;
   backface-visibility: hidden; -webkit-backface-visibility: hidden; -webkit-user-drag: none;
-  transition: opacity 0.5s var(--ease), color 0.3s; -webkit-tap-highlight-color: transparent;
+  -webkit-backdrop-filter: none; backdrop-filter: none; /* the dock's frosted layer blurs behind; per-card blur re-renders every frame while spinning */
+  transition: color 0.3s, background 0.3s; -webkit-tap-highlight-color: transparent;
+  /* Entrance: cards rise into place one after another */
+  animation: ring-rise 0.7s cubic-bezier(0.32, 0.72, 0, 1) both; animation-delay: calc(var(--i, 0) * 45ms);
 }
+@keyframes ring-rise { from { translate: 0 46px; opacity: 0; } }
 .ring-card .ico { font-size: 1.7rem; line-height: 1; transition: transform 0.4s var(--spring); }
 .ring-card.is-front { color: var(--ink); background: linear-gradient(135deg, rgba(255, 214, 170, 0.8), rgba(255, 251, 245, 0.55) 60%, rgba(255, 190, 130, 0.5)); }
 .ring-card.is-front .ico { transform: scale(1.12); }
@@ -151,6 +149,7 @@ main[data-dir="prev"] > .panel { animation-name: panel-from-left; }
   display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between;
   min-height: 150px; padding: 1rem; border: 0; text-align: left; color: var(--ink);
   font: inherit; cursor: pointer; border-radius: var(--r-lg); text-decoration: none;
+  transition: transform 0.35s var(--spring), box-shadow 0.35s var(--ease);
 }
 .tile .emoji {
   font-size: 2rem; width: 56px; height: 56px; display: grid; place-items: center;
@@ -159,11 +158,13 @@ main[data-dir="prev"] > .panel { animation-name: panel-from-left; }
 }
 .tile strong { font: 800 1.25rem var(--font-display); display: block; }
 .tile small { font-size: 0.82rem; color: rgba(43, 33, 80, 0.78); font-weight: 700; }
-.tile { transition: transform 0.35s var(--spring), box-shadow 0.35s var(--ease); }
 @media (hover: hover) { .tile:hover { transform: translateY(-4px); } .tile:active { transform: scale(0.96); } }
 .tagline { text-align: center; margin: 1.4rem 0 0.25rem; font-weight: 800; color: var(--ink-soft); }
 
-/* Bracelet */
+/* Bracelet: every 0/1 bead on the Create tab takes its colour from the two pickers */
+#tab-create { --c0: #ff8fbf; --c1: #b39bff; }
+#tab-create .bead[data-bit="0"] { background: var(--c0); }
+#tab-create .bead[data-bit="1"] { background: var(--c1); }
 .field-label { display: block; font-weight: 800; margin-bottom: 0.4rem; }
 .text-input {
   width: 100%; min-height: 56px; padding: 0 1.1rem; border: 0;
@@ -172,12 +173,11 @@ main[data-dir="prev"] > .panel { animation-name: panel-from-left; }
 .text-input:focus { outline: 3px solid var(--grape); outline-offset: 2px; }
 .swatches { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem; }
 .swatch {
-  display: flex; align-items: center; gap: 0.7rem; padding: 0.7rem 0.8rem; border-radius: var(--r-md);
+  display: flex; align-items: center; gap: 0.55rem; padding: 0.65rem 0.7rem; border-radius: var(--r-md);
   font-weight: 800; font-size: 0.9rem; line-height: 1.2; cursor: pointer;
 }
 .swatch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .swatch:focus-within { outline: 3px solid var(--grape-deep); outline-offset: 2px; }
-.swatch { gap: 0.55rem; padding: 0.65rem 0.7rem; }
 .swatch .bead { width: 34px; height: 34px; font-size: 0.9rem; }
 .bead-rows { display: flex; flex-direction: column; gap: 0.55rem; min-height: 80px; padding: 1rem 0.8rem; }
 .bead-row { display: flex; align-items: center; gap: 0.35rem; animation: panel-in 0.4s var(--spring) both; }
@@ -274,8 +274,6 @@ main[data-dir="prev"] > .panel { animation-name: panel-from-left; }
 }
 
 /* ---- Bitsy the red panda ---- */
-img.hero-fallback { position: absolute; inset: 10px 0 0; margin: auto; height: 92%; width: auto; animation: bitsy-bob 2.4s ease-in-out infinite; }
-.hero-stage.has-3d .hero-fallback { display: none; }
 
 .buddy {
   display: grid; grid-template-columns: 130px 1fr; align-items: center; gap: 0.6rem;

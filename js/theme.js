@@ -13,7 +13,7 @@ export function initTheme() {
     const next = root.dataset.theme === "dark" ? "light" : "dark";
     const apply = () => { root.dataset.theme = next; sync(); };
     // Cross-fade the whole page while the thumb glides across (it has its own view-transition-name)
-    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(apply);
+    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(apply).ready.catch(() => {});
     else apply();
     try { localStorage.setItem("theme", next); } catch {}
   });

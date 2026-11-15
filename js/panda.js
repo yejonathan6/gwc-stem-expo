@@ -8,7 +8,6 @@ const C = {
   earIn: "#7a4a3e",
   eye: "#24130f",
   pink: "#ff8fbf",
-  grape: "#b39bff",
 };
 
 // Shared felt-clay bump texture (fine noise, like the fuzzy clay in the reference)
@@ -49,19 +48,23 @@ function blob(color, r, pos, scale = [1, 1, 1], opts) {
   m.position.set(...pos);
   return m;
 }
+// Geometry shared by every panda (one copy each, however many pandas are built)
+let ARM, MOUTH, HEART;
 function capsule(color, r, len, pos) {
-  const m = new THREE.Mesh(new THREE.CapsuleGeometry(r, len, 8, 16), mat(color));
+  const m = new THREE.Mesh((ARM ??= new THREE.CapsuleGeometry(r, len, 8, 16)), mat(color)); // only used for the two identical arms
   m.position.set(...pos);
   return m;
 }
 function heartMesh(color, size = 0.22) {
-  const s = new THREE.Shape();
-  s.moveTo(0, -0.9);
-  s.bezierCurveTo(-1.6, 0.1, -0.8, 1.3, 0, 0.55);
-  s.bezierCurveTo(0.8, 1.3, 1.6, 0.1, 0, -0.9);
-  const geo = new THREE.ExtrudeGeometry(s, { depth: 0.35, bevelEnabled: true, bevelThickness: 0.25, bevelSize: 0.25, bevelSegments: 6, curveSegments: 24 });
-  geo.center();
-  const m = new THREE.Mesh(geo, mat(color, { smooth: true }));
+  if (!HEART) {
+    const s = new THREE.Shape();
+    s.moveTo(0, -0.9);
+    s.bezierCurveTo(-1.6, 0.1, -0.8, 1.3, 0, 0.55);
+    s.bezierCurveTo(0.8, 1.3, 1.6, 0.1, 0, -0.9);
+    HEART = new THREE.ExtrudeGeometry(s, { depth: 0.35, bevelEnabled: true, bevelThickness: 0.25, bevelSize: 0.25, bevelSegments: 6, curveSegments: 24 });
+    HEART.center();
+  }
+  const m = new THREE.Mesh(HEART, mat(color, { smooth: true }));
   m.scale.setScalar(size);
   return m;
 }
@@ -69,7 +72,7 @@ function heartMesh(color, size = 0.22) {
 const lerp = (a, b, k) => a + (b - a) * k;
 
 export function buildPanda() {
-  const root = new THREE.Group();     // moves (hops, hula)
+  const root = new THREE.Group();     // moves (hops)
   const body = new THREE.Group();     // squash & stretch
   root.add(body);
 
@@ -118,7 +121,7 @@ export function buildPanda() {
     eyes.push(e);
   }
   head.add(blob(C.eye, 0.085, [0, 0.37, 0.74], [1.35, 0.85, 0.9], { smooth: true })); // nose
-  const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.014, 8, 24, Math.PI), mat(C.eye, { smooth: true }));
+  const mouth = new THREE.Mesh((MOUTH ??= new THREE.TorusGeometry(0.075, 0.014, 8, 24, Math.PI)), mat(C.eye, { smooth: true }));
   mouth.position.set(0, 0.24, 0.715);
   mouth.rotation.z = Math.PI;
   head.add(mouth);
@@ -160,7 +163,7 @@ export function buildPanda() {
 
 
   // ---- Animation state ----
-  let mode = "wave";
+  let mode = "type";
   let reaction = null;           // { kind, t0 }
   let nextBlink = 1.5, blinkT = -1;
   let nextTwitch = 2;
@@ -177,13 +180,6 @@ export function buildPanda() {
     heart.visible = mode === "heart";
 
     switch (mode) {
-      case "wave":
-        aRx = -2.6; aRz = -0.35 + Math.sin(t * 8) * 0.35; hz = 0.12 + Math.sin(t * 1.5) * 0.05;
-        break;
-      case "hula":
-        px = Math.sin(t * 4.5) * 0.07; pz = Math.cos(t * 4.5) * 0.07;
-        aLx = -1.2; aLz = 0.9; aRx = -1.2; aRz = -0.9; hz = Math.sin(t * 4.5) * 0.08;
-        break;
       case "type":
         hx = 0.22; aLx = -0.9 + Math.max(0, Math.sin(t * 9)) * 0.35; aRx = -0.9 + Math.max(0, Math.sin(t * 9 + Math.PI)) * 0.35;
         aLz = -0.25; aRz = 0.25;

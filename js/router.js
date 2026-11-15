@@ -2,30 +2,31 @@
 export const TABS = ["home", "create", "solve", "play", "about"];
 const listeners = new Set();
 let current = null;
+let transition = null;
 
 export function onTabChange(fn) { listeners.add(fn); }
 export function currentTab() { return current; }
+// The tab ring animates every tab change itself and calls commit() once its motion settles
+export function setTransition(fn) { transition = fn; }
 
-function show(tab, { focus = true } = {}) {
+function show(tab) {
   if (!TABS.includes(tab)) tab = "home";
   if (tab === current) return;
   const prev = current;
   current = tab;
 
-  // Slide direction for the panel entrance (shortest way round the ring)
-  if (prev !== null) {
-    const n = TABS.length, step = ((TABS.indexOf(tab) - TABS.indexOf(prev) + n + 2) % n) - 2;
-    document.getElementById("main").dataset.dir = step > 0 ? "next" : "prev";
-  }
-  document.querySelectorAll("main > .panel").forEach((p) => { p.hidden = p.dataset.tab !== tab; });
-  document.querySelectorAll("#tab-ring a[data-tab]").forEach((a) => {
-    if (a.dataset.tab === tab) a.setAttribute("aria-current", "page");
-    else a.removeAttribute("aria-current");
-  });
-
-  window.scrollTo(0, 0);
-  if (focus && prev !== null) document.getElementById(`tab-${tab}`)?.focus({ preventScroll: true });
-  listeners.forEach((fn) => fn(tab, prev));
+  const swap = () => {
+    document.querySelectorAll("main > .panel").forEach((p) => { p.hidden = p.dataset.tab !== tab; });
+    document.querySelectorAll("#tab-ring a[data-tab]").forEach((a) => {
+      if (a.dataset.tab === tab) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    });
+    window.scrollTo(0, 0);
+    if (prev !== null) document.getElementById(`tab-${tab}`)?.focus({ preventScroll: true });
+    listeners.forEach((fn) => fn(tab, prev));
+  };
+  if (prev === null || !transition) return swap();
+  transition(tab, swap);
 }
 
 export function startRouter() {

@@ -8,6 +8,10 @@
   box-shadow: var(--glass-shadow);
   isolation: isolate;
 }
+/* Glass inside the page sits on solid clay or the already-blurred background, so a live
+   backdrop blur adds nothing visible there but is re-rendered on every scroll and page slide.
+   Keep it only on overlays that float over moving content (top bar, ring dock, sheet, toast). */
+main .glass { -webkit-backdrop-filter: none; backdrop-filter: none; }
 /* Specular sheen: bright top-left catch-light fading across the surface */
 .glass::before {
   content: "";
