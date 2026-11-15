@@ -2,7 +2,8 @@
 import { cleanName, nameToBits, ALPHABET } from "./binary.js";
 import { toast, openSheet } from "./ui.js";
 
-export function initBracelet({ load3D }) {
+export function initBracelet({ load3D, bitsy = () => {} }) {
+  let lastCheer = 0;
   const input = document.getElementById("name-input");
   const rows = document.getElementById("bead-rows");
   const c0 = document.getElementById("color0");
@@ -48,6 +49,13 @@ export function initBracelet({ load3D }) {
         rows.appendChild(row);
       });
     }
+    // Bitsy reads out the newest letter (at most every ~1.2s so it isn't noisy)
+    const now = performance.now();
+    if (name && now - lastCheer > 1200) {
+      lastCheer = now;
+      const ch = name[name.length - 1];
+      bitsy("tap", `${ch} is ${nameToBits(ch)[0]} — that's 8 beads!`);
+    }
     copyBtn.disabled = !name;
     toggle3D.disabled = !name;
     if (!name && show3D) setShow3D(false);
@@ -74,7 +82,10 @@ export function initBracelet({ load3D }) {
   input.addEventListener("input", render);
   c0.addEventListener("input", paintSwatches);
   c1.addEventListener("input", paintSwatches);
-  toggle3D.addEventListener("click", () => setShow3D(!show3D));
+  toggle3D.addEventListener("click", () => {
+    setShow3D(!show3D);
+    if (show3D) bitsy("happy", "Wheee! Drag the bracelet to spin it 🌀");
+  });
 
   copyBtn.addEventListener("click", async () => {
     const name = cleanName(input.value);
@@ -82,6 +93,7 @@ export function initBracelet({ load3D }) {
     try {
       await navigator.clipboard.writeText(text);
       toast("Copied your binary code! ⧉");
+      bitsy("happy", "Copied! Show it to a friend ✨");
     } catch {
       toast("Couldn't copy — try a long-press instead");
     }

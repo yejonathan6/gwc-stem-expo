@@ -12,7 +12,7 @@ function saveSolved(set) {
 
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-export function initChallenges() {
+export function initChallenges({ bitsy = () => {} } = {}) {
   const root = document.getElementById("challenge-root");
   const starEls = [...document.querySelectorAll("#star-row .star")];
   const count = document.getElementById("star-count");
@@ -88,9 +88,11 @@ export function initChallenges() {
       paintStars(isNew ? solved.size - 1 : undefined);
       fb.innerHTML = `<div class="feedback clay clay--mint"><strong>Yes! ${isNew ? "+1 star ⭐" : "Nice!"}</strong>${esc(c.explain)}</div>`;
       root.querySelectorAll(".steps button")[index]?.classList.add("done");
+      bitsy("cheer", solved.size === CHALLENGES.length ? "3 stars! You're a real coder! 🏆" : "You got it! ⭐ Tap Next!");
     } else {
       btn.classList.add("wrong");
       fb.innerHTML = `<div class="feedback clay clay--peach"><strong>So close! Try again 💪</strong>Hint: ${esc(c.hint)}</div>`;
+      bitsy("oops", "Oops! Read the hint and try again 💪");
     }
   }
 
