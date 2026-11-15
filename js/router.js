@@ -1,5 +1,5 @@
 // Hash-based tab router: #home, #create, #solve, #play, #about
-const TABS = ["home", "create", "solve", "play", "about"];
+export const TABS = ["home", "create", "solve", "play", "about"];
 const listeners = new Set();
 let current = null;
 
@@ -12,6 +12,11 @@ function show(tab, { focus = true } = {}) {
   const prev = current;
   current = tab;
 
+  // Slide direction for the panel entrance (shortest way round the ring)
+  if (prev !== null) {
+    const n = TABS.length, step = ((TABS.indexOf(tab) - TABS.indexOf(prev) + n + 2) % n) - 2;
+    document.getElementById("main").dataset.dir = step > 0 ? "next" : "prev";
+  }
   document.querySelectorAll("main > .panel").forEach((p) => { p.hidden = p.dataset.tab !== tab; });
   document.querySelectorAll(".tabbar .tab").forEach((a) => {
     if (a.dataset.tab === tab) a.setAttribute("aria-current", "page");

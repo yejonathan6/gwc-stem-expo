@@ -53,6 +53,30 @@ p { margin: 0; }
 .panel { animation: panel-in 0.45s var(--ease); }
 .panel:focus { outline: none; }
 @keyframes panel-in { from { opacity: 0; transform: translateY(14px) scale(0.98); } }
+main[data-dir="next"] > .panel { animation-name: panel-from-right; }
+main[data-dir="prev"] > .panel { animation-name: panel-from-left; }
+@keyframes panel-from-right { from { opacity: 0; transform: translateX(48px) scale(0.98); } }
+@keyframes panel-from-left { from { opacity: 0; transform: translateX(-48px) scale(0.98); } }
+
+/* Circular tab carousel: cards on a 3D cylinder, current tab at the front */
+.tab-ring {
+  --ring-r: 172px;
+  height: 92px; margin: -0.3rem 0 1rem; perspective: 900px; perspective-origin: 50% 30%;
+  touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab;
+}
+.tab-ring.dragging { cursor: grabbing; }
+.ring-track { position: relative; height: 100%; transform-style: preserve-3d; transition: transform 0.7s var(--spring); }
+.tab-ring.dragging .ring-track { transition: none; }
+.ring-card {
+  position: absolute; left: 50%; top: 6px; width: 96px; height: 78px; margin-left: -48px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  border-radius: 24px; color: var(--ink-soft); font: 800 0.8rem var(--font-body); text-decoration: none;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden; -webkit-user-drag: none;
+  transition: opacity 0.5s var(--ease), color 0.3s; -webkit-tap-highlight-color: transparent;
+}
+.ring-card .ico { font-size: 1.7rem; line-height: 1; transition: transform 0.4s var(--spring); }
+.ring-card.is-front { color: var(--ink); }
+.ring-card.is-front .ico { transform: scale(1.12); }
 .kicker { font: 800 0.75rem var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--grape-deep); }
 .panel-head { margin: 0.25rem 0 1.1rem; }
 .panel-head h1 { font-size: clamp(1.9rem, 8vw, 2.4rem); margin: 0.2rem 0 0.4rem; }
