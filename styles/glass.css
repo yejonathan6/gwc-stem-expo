@@ -35,10 +35,12 @@
   color: var(--ink);
   text-decoration: none;
   cursor: pointer;
-  transition: transform 0.25s var(--spring), background 0.2s;
+  transition: transform 0.25s var(--spring), box-shadow 0.25s var(--ease), filter 0.2s;
   -webkit-tap-highlight-color: transparent;
 }
 .btn:active { transform: scale(0.95); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+@media (hover: hover) { .btn:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.04); } .btn:not(:disabled):active { transform: scale(0.95); } }
 .btn:focus-visible, .tab:focus-visible, .tile:focus-visible, .answer:focus-visible {
   outline: 3px solid var(--grape-deep);
   outline-offset: 3px;

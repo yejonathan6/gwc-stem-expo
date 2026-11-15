@@ -20,7 +20,11 @@ export function openSheet(title, contentEl) {
     </div>`;
   back.querySelector("#sheet-title").textContent = title;
   back.querySelector(".sheet").appendChild(contentEl);
-  const close = () => { back.remove(); document.removeEventListener("keydown", onKey); opener?.focus?.(); };
+  const close = () => {
+    if (back.classList.contains("closing")) return;
+    back.classList.add("closing");
+    setTimeout(() => back.remove(), 300); // matches the .closing exit animation
+    document.removeEventListener("keydown", onKey); opener?.focus?.(); };
   const onKey = (e) => { if (e.key === "Escape") close(); };
   back.addEventListener("click", (e) => { if (e.target === back || e.target.closest("[data-close]")) close(); });
   document.addEventListener("keydown", onKey);
