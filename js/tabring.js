@@ -1,11 +1,11 @@
 // Tab navigation. The pages live in a native horizontal snap-scroll strip (main), so swipes,
 // trackpad scrolls and momentum are handled by the browser. The 3D ring at the bottom is simply a
-// view of that scroll position. Dragging the ring or tapping a tab scrolls the strip with a spring.
+// view of that scroll position. Dragging the ring or tapping a tab scrolls the strip.
 //
 // Looping without duplicate pages: the current page is always kept in the middle of the strip
 // with two pages either side. After each move settles, the off-screen page at one end is moved to
 // the other end and the scroll offset corrected in the same frame, so nothing visibly changes.
-import { TABS, currentTab, onTabChange, setTransition } from "./router.js?v=202611150330";
+import { TABS, currentTab, onTabChange, setTransition } from "./router.js?v=202611150335";
 
 // Each tab appears twice round the ring so neighbours turn only 36° and stay readable
 const N = TABS.length, STEP = 360 / (N * 2), MID = 2; // MID: index of the current page in the strip
@@ -14,7 +14,6 @@ const tabAt = (slot) => TABS[((slot % N) + N) % N];
 const shortest = (from, to) => ((TABS.indexOf(to) - TABS.indexOf(from) + N + 2) % N) - 2; // −2…2 pages
 
 const MOMENTUM = 0.18; // seconds of glide projected from release velocity (ring drags)
-const STIFFNESS = 220, DAMPING = 2 * Math.sqrt(STIFFNESS) * 0.9; // settles in ~0.4s, barely any overshoot
 const TILT = -6; // camera looks slightly down onto the ring
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -91,72 +90,48 @@ export function initTabRing() {
     requestAnimationFrame(() => { paintQueued = false; paintRing(); });
   }, { passive: true });
 
-  // ---- Spring-driven scrolling (ring drags, taps, links). Snap is paused while we drive it. ----
-  // sp: the spring's own exact position in pages (scrollLeft is rounded to device pixels)
-  let target = MID, sp = MID, vel = 0, raf = 0, lastT = 0, driving = false, pending = null;
-  function drive(on) {
-    driving = on;
-    strip.style.scrollSnapType = on ? "none" : "";
+  // ---- Moving the strip. Taps, links and ring releases use the browser's own smooth scroll with
+  // snapping left on, so the browser always knows which page it is settling on. (Switching snapping
+  // off around a scripted animation and back on made phone browsers re-snap towards the old page,
+  // stranding the strip between two faded pages.) Only a live ring drag pauses snapping. ----
+  let heading = null, pending = null, dragging = false;
+  function scrollToSlot(slot) {
+    heading = Math.max(0, Math.min(N - 1, slot));
+    strip.scrollTo({ left: heading * W, behavior: reduceMotion.matches ? "instant" : "smooth" });
+    if (Math.abs(strip.scrollLeft - heading * W) < 1) settle(); // already there: no scroll will follow
   }
-  function tick(now) {
-    let left = Math.min(0.12, (now - lastT) / 1000 || 0.016); // real time in fixed sub-steps
-    lastT = now;
-    while (left > 0) {
-      const h = Math.min(0.008, left);
-      vel += (STIFFNESS * (target - sp) - DAMPING * vel) * h;
-      sp += vel * h;
-      left -= h;
-    }
-    if (Math.abs(target - sp) < 0.002 && Math.abs(vel) < 0.02) { // within ~1px: finish
-      strip.scrollLeft = target * W; raf = 0; vel = 0;
-      return settle();
-    }
-    strip.scrollLeft = sp * W;
-    raf = requestAnimationFrame(tick);
-  }
-  function animateTo(slot) {
-    target = Math.max(0, Math.min(N - 1, slot));
-    drive(true);
-    if (reduceMotion.matches) { strip.scrollLeft = target * W; return settle(); }
-    if (!raf) { sp = pos(); lastT = performance.now(); raf = requestAnimationFrame(tick); }
-  }
-  function stopDriving() { cancelAnimationFrame(raf); raf = 0; vel = 0; drive(false); }
 
-  // A move has come to rest (native swipe, or our spring): commit the tab, then recentre
+  // A move has come to rest: commit the tab, then recentre
   function settle() {
-    drive(false);
+    heading = null;
     const tab = order[Math.round(pos())];
     if (pending?.tab === tab) { const { commit } = pending; pending = null; commit(); }
-    else if (tab !== currentTab()) location.hash = tab; // native swipe landed on a new page
+    else if (tab !== currentTab()) location.hash = tab; // a swipe landed on a new page
     recentre();
     paintRing();
   }
-  if ("onscrollend" in window) strip.addEventListener("scrollend", () => { if (!driving && !dragging) settle(); });
+  if ("onscrollend" in window) strip.addEventListener("scrollend", () => { if (!dragging) settle(); });
   else { // older Safari: treat 120ms without scroll events as the end
     let t = 0;
-    strip.addEventListener("scroll", () => { clearTimeout(t); t = setTimeout(() => { if (!driving && !dragging) settle(); }, 120); }, { passive: true });
+    strip.addEventListener("scroll", () => { clearTimeout(t); t = setTimeout(() => { if (!dragging) settle(); }, 120); }, { passive: true });
   }
-  // A finger, trackpad or wheel on the strip takes over from any spring in progress
-  ["pointerdown", "wheel", "touchstart"].forEach((t) => strip.addEventListener(t, () => { if (driving && !dragging) stopDriving(); }, { passive: true }));
 
   // Router hands every tab change (links, tiles, ring taps, swipes) here to animate
   setTransition((tab, commit) => {
     pending = { tab, commit };
     preview = null;
-    const here = Math.round(pos());
-    if (order[here] === tab && !driving) return settle();          // a swipe already brought it here
-    if (driving && order[target] === tab) return;                  // a ring fling is already heading there
-    animateTo(here + shortest(order[here], tab));
+    if (dragging || (heading !== null && order[heading] === tab)) return; // already on its way there
+    const here = heading ?? Math.round(pos());
+    scrollToSlot(here + shortest(order[here], tab));
   });
   // First load (no motion) and keeping the ring in sync with commits
   onTabChange((tab) => { if (!order.length) { layout(tab); baseAngle = TABS.indexOf(tab) * STEP; paintRing(); } });
 
   // ---- Dragging the ring scrolls the strip (1 card = 1 page) ----
-  let dragging = false, startPos = 0, lastP = 0, lastMoveT = 0, dVel = 0;
+  let startPos = 0, lastP = 0, lastMoveT = 0, dVel = 0;
   function dragStart() {
-    stopDriving();
-    dragging = true; preview = null;
-    drive(true);
+    dragging = true; preview = null; heading = null;
+    strip.style.scrollSnapType = "none"; // follow the pointer exactly while held
     startPos = lastP = pos(); lastMoveT = performance.now(); dVel = 0;
     ring.classList.add("dragging");
   }
@@ -175,16 +150,16 @@ export function initTabRing() {
     // Momentum may carry at most one card past where it was let go, so a flick never skips tabs
     const p = pos(), from = Math.round(p);
     const slot = Math.max(from - 1, Math.min(from + 1, Math.round(p + dVel * MOMENTUM)));
-    vel = dVel;
-    animateTo(slot);
-    if (order[target] !== currentTab()) location.hash = order[target]; // committed when the spring settles
+    strip.style.scrollSnapType = ""; // snapping back on before the browser glides to the page
+    scrollToSlot(slot);
+    if (order[slot] !== currentTab()) location.hash = order[slot]; // committed when it settles
   }
 
   // Keyboard: turn a focused card to the front so its focus outline is visible (pages stay put)
   links.forEach((a, i) => {
     // Keyboard focus only: a mouse press on a card must not start turning the ring
     a.addEventListener("focus", () => {
-      if (dragging || driving || !a.matches(":focus-visible")) return;
+      if (dragging || heading !== null || !a.matches(":focus-visible")) return;
       const now = ringAngle(); preview = now + wrap(i * STEP - now, 360); paintRing();
     });
     a.addEventListener("blur", () => { if (preview === null) return; preview = null; paintRing(); });
