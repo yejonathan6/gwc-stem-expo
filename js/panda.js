@@ -158,14 +158,6 @@ export function buildPanda() {
   heart.visible = false;
   root.add(heart);
 
-  const beadRing = new THREE.Group();
-  beadRing.position.set(0, 1.0, 0.45);
-  for (let i = 0; i < 8; i++) {
-    const a = (i / 8) * Math.PI * 2;
-    beadRing.add(blob(i % 3 ? C.pink : C.grape, 0.08, [Math.cos(a) * 0.32, Math.sin(a) * 0.32, 0], [1, 1, 1], { smooth: true }));
-  }
-  beadRing.visible = false;
-  root.add(beadRing);
 
   // ---- Animation state ----
   let mode = "wave";
@@ -183,7 +175,6 @@ export function buildPanda() {
     let aLx = 0.15, aLz = 0, aRx = 0.15, aRz = 0, hx = 0, hy = 0, hz = 0;
     let y = 0, sx = 1, sy = 1 + Math.sin(t * 2.2) * 0.015, spin = 0, px = 0, pz = 0;
     heart.visible = mode === "heart";
-    beadRing.visible = mode === "type";
 
     switch (mode) {
       case "wave":
@@ -195,7 +186,7 @@ export function buildPanda() {
         break;
       case "type":
         hx = 0.22; aLx = -0.9 + Math.max(0, Math.sin(t * 9)) * 0.35; aRx = -0.9 + Math.max(0, Math.sin(t * 9 + Math.PI)) * 0.35;
-        aLz = -0.25; aRz = 0.25; beadRing.rotation.z = t * 1.5;
+        aLz = -0.25; aRz = 0.25;
         break;
       case "think":
         aRx = -2.0; aRz = 0.55; hz = 0.22 + Math.sin(t * 1.2) * 0.06; hx = -0.12;

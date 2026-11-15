@@ -15,7 +15,7 @@ function webglOK() {
 }
 const has3D = webglOK();
 
-// ---- Home hero: Bitsy hula-hooping in the GWC bracelet ----
+// ---- Home hero: the GWC bead bracelet ----
 let hero = null;
 async function startHero() {
   const stage = document.getElementById("hero-stage");
@@ -24,7 +24,7 @@ async function startHero() {
     const { createBraceletScene } = await load3D();
     // "GWC" in binary = 24 beads
     const bits = [..."GWC"].map((c) => c.charCodeAt(0).toString(2).padStart(8, "0")).join("");
-    hero = createBraceletScene(stage, { bits, colors: ["#ff8fbf", "#fffaf3"], blobs: true, panda: true });
+    hero = createBraceletScene(stage, { bits, colors: ["#ff8fbf", "#fffaf3"], blobs: true });
     stage.classList.add("has-3d");
   } catch (err) {
     console.warn("3D hero unavailable:", err);

@@ -223,7 +223,6 @@ p { margin: 0; }
 }
 
 /* ---- Bitsy the red panda ---- */
-.hero-stage { height: 270px; }
 img.hero-fallback { position: absolute; inset: 10px 0 0; margin: auto; height: 92%; width: auto; animation: bitsy-bob 2.4s ease-in-out infinite; }
 .hero-stage.has-3d .hero-fallback { display: none; }
 

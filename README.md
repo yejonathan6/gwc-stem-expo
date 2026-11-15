@@ -11,12 +11,11 @@ A mobile-first site for the Girls Who Code booth at the OCGS STEM Expo. It's a r
 - **About**: the Girls Who Code club.
 
 ## Bitsy the red panda
-Bitsy is a clay red panda built from three.js shapes in `js/panda.js`. A different animation plays on each tab:
+Bitsy is a clay red panda built from three.js shapes in `js/panda.js`. Bitsy appears on every tab except Home, with a different animation on each:
 
 | Tab | Animation |
 |---|---|
-| Home | Hula-hoops inside the GWC bead bracelet |
-| Create | Strings a ring of beads |
+| Create | Taps along while you type |
 | Solve | Thinks, with a paw on the chin |
 | Play | Hops |
 | About | Sways under a floating clay heart |
