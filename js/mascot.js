@@ -1,6 +1,6 @@
 // One shared WebGL view of the panda that moves into whichever tab is open.
 import * as THREE from "three";
-import { buildPanda } from "./panda.js?v=202611150131";
+import { buildPanda } from "./panda.js?v=202611150137";
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -21,8 +21,9 @@ export function createMascot() {
   scene.add(rim);
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
-  camera.position.set(0.7, 1.45, 5.7);
-  camera.lookAt(0, 1.15, 0);
+  // Framed for the tallest poses (hop peak, floating heart) so nothing clips at the card's top edge
+  camera.position.set(0.8, 1.6, 6.7);
+  camera.lookAt(0, 1.38, 0);
 
   const panda = buildPanda();
   panda.root.rotation.y = -0.35;
