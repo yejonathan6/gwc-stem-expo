@@ -1,4 +1,4 @@
-/* Liquid glass: clear refractive body, iridescent gradient rim, specular sheen */
+/* Liquid glass: warm frosted body, apricot gradient rim, soft specular sheen */
 .glass {
   position: relative;
   background: var(--glass-fill);
@@ -16,12 +16,12 @@
   border-radius: inherit;
   background:
     radial-gradient(120% 70% at 18% 0%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 55%),
-    radial-gradient(80% 60% at 100% 100%, rgba(255, 214, 240, 0.35), rgba(255, 255, 255, 0) 60%);
+    radial-gradient(80% 60% at 100% 100%, rgba(255, 196, 140, 0.32), rgba(255, 255, 255, 0) 60%);
   opacity: 0.7;
   pointer-events: none;
   z-index: -1;
 }
-/* Iridescent rim: a gradient border cut out with a mask so only the edge shows */
+/* Warm gradient rim: a gradient border cut out with a mask so only the edge shows */
 .glass::after {
   content: "";
   position: absolute;
@@ -58,14 +58,14 @@
   .btn:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.05) saturate(1.1); box-shadow: var(--glass-shadow-lift); }
   .btn:not(:disabled):active { transform: scale(0.95); }
 }
-.btn:focus-visible, .tab:focus-visible, .tile:focus-visible, .answer:focus-visible {
+.btn:focus-visible, .ring-card:focus-visible, .tile:focus-visible, .answer:focus-visible {
   outline: 3px solid var(--grape-deep);
   outline-offset: 3px;
 }
 
-/* Tinted glass: multi-stop gradients glow through the glass */
-.btn--pink  { background: linear-gradient(135deg, rgba(255, 143, 191, 0.85), rgba(255, 179, 138, 0.7) 55%, rgba(232, 85, 154, 0.75)); color: #3a0f2a; }
-.btn--grape { background: linear-gradient(135deg, rgba(179, 155, 255, 0.85), rgba(143, 208, 255, 0.7) 55%, rgba(123, 92, 240, 0.75)); color: #1f1150; }
+/* Tinted glass: warm orange (primary) and cream-apricot (secondary) gradients */
+.btn--pink  { background: linear-gradient(135deg, rgba(255, 176, 108, 0.88), rgba(255, 212, 150, 0.72) 55%, rgba(246, 132, 62, 0.78)); color: #3d1d05; }
+.btn--grape { background: linear-gradient(135deg, rgba(255, 240, 215, 0.92), rgba(255, 206, 150, 0.72) 55%, rgba(255, 176, 112, 0.78)); color: #3d1d05; }
 .btn--block { width: 100%; }
 
 /* Fallbacks */

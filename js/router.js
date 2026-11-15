@@ -18,12 +18,10 @@ function show(tab, { focus = true } = {}) {
     document.getElementById("main").dataset.dir = step > 0 ? "next" : "prev";
   }
   document.querySelectorAll("main > .panel").forEach((p) => { p.hidden = p.dataset.tab !== tab; });
-  document.querySelectorAll(".tabbar .tab").forEach((a) => {
+  document.querySelectorAll("#tab-ring a[data-tab]").forEach((a) => {
     if (a.dataset.tab === tab) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
-  const pill = document.getElementById("tab-pill");
-  if (pill) pill.style.transform = `translateX(${TABS.indexOf(tab) * 100}%)`;
 
   window.scrollTo(0, 0);
   if (focus && prev !== null) document.getElementById(`tab-${tab}`)?.focus({ preventScroll: true });
