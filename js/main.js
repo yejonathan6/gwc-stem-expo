@@ -1,14 +1,14 @@
-import { startRouter, onTabChange, currentTab } from "./router.js?v=202611150309";
-import { initBracelet } from "./bracelet.js?v=202611150309";
-import { initChallenges } from "./challenges.js?v=202611150309";
-import { initTheme } from "./theme.js?v=202611150309";
-import { initTabRing } from "./tabring.js?v=202611150309";
-import { bitsy } from "./bitsy.js?v=202611150309";
-import { nameToBits } from "./binary.js?v=202611150309";
+import { startRouter, onTabChange, currentTab } from "./router.js?v=202611150330";
+import { initBracelet } from "./bracelet.js?v=202611150330";
+import { initChallenges } from "./challenges.js?v=202611150330";
+import { initTheme } from "./theme.js?v=202611150330";
+import { initTabRing } from "./tabring.js?v=202611150330";
+import { bitsy } from "./bitsy.js?v=202611150330";
+import { nameToBits } from "./binary.js?v=202611150330";
 
 // Three.js is loaded lazily from the CDN; the site works fine without it.
 let threePromise = null;
-const load3D = () => (threePromise ??= import("./clay3d.js?v=202611150309"));
+const load3D = () => (threePromise ??= import("./clay3d.js?v=202611150330"));
 
 function webglOK() {
   try {
@@ -26,7 +26,7 @@ async function startHero() {
   try {
     const { createBraceletScene } = await load3D();
     // "GWC" in binary = 24 beads
-    createBraceletScene(stage, { bits: nameToBits("GWC").join(""), colors: ["#ff8fbf", "#fffaf3"], blobs: true });
+    createBraceletScene(stage, { bits: nameToBits("GWC").join(""), colors: ["#ff8fbf", "#fffaf3"], blobs: true, touchSpin: false });
     stage.classList.add("has-3d");
   } catch (err) {
     console.warn("3D hero unavailable:", err);
@@ -37,7 +37,7 @@ async function startHero() {
 let mascot = null, mascotPromise = null;
 function getMascot() {
   if (!has3D) return Promise.resolve(null);
-  return (mascotPromise ??= import("./mascot.js?v=202611150309")
+  return (mascotPromise ??= import("./mascot.js?v=202611150330")
     .then(({ createMascot }) => (mascot = createMascot()))
     .catch((err) => { console.warn("Bitsy 3D unavailable:", err); return null; }));
 }
@@ -83,8 +83,7 @@ onTabChange((tab) => {
   else showBuddy(tab);
 });
 startRouter();
-// Load the pandas early so pages are already animated when they slide in: while idle after
-// the hero starts, or the moment the ring is touched, whichever comes first.
-const ring = document.getElementById("tab-ring");
-["pointerdown", "touchstart"].forEach((t) => ring.addEventListener(t, () => getMascot(), { passive: true, once: true }));
-startHero().then(() => (window.requestIdleCallback || setTimeout)(() => getMascot()));
+// Every page is laid out from the start, so load all the 3D at once: the Home bracelet and the
+// pandas. Each only draws while its page is on screen.
+startHero();
+getMascot();

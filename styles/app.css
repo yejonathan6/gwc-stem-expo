@@ -1,12 +1,14 @@
 /* Layout & components */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; background: var(--bg-2); }
+/* The window never scrolls: pages sit side by side in a native snap-scroll strip (main) and each
+   page scrolls vertically on its own. */
+html { -webkit-text-size-adjust: 100%; background: var(--bg-2); height: 100%; overflow: hidden; }
 body {
   margin: 0;
-  min-height: 100dvh;
+  height: 100%;
+  overflow: hidden;
   font: 500 1rem/1.5 var(--font-body);
   color: var(--ink);
-  overflow-x: hidden;
 }
 h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; margin: 0; }
 p { margin: 0; }
@@ -30,17 +32,21 @@ p { margin: 0; }
 @keyframes drift { to { transform: translate(8vmax, 6vmax) scale(1.1); } }
 
 /* App shell */
-.app {
-  max-width: var(--maxw);
-  margin: 0 auto;
-  padding: 0.75rem 1rem calc(var(--dock-h) + var(--safe-bottom) + 1.5rem);
-}
+.app { height: 100%; }
 .topbar {
-  position: sticky; top: 0.6rem; z-index: 20;
+  position: fixed; top: 0.6rem; left: 0; right: 0; z-index: 20; margin: 0 auto;
+  width: min(calc(100% - 2rem), calc(var(--maxw) - 2rem));
   display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
   padding: 0.55rem 0.6rem 0.55rem 1rem; border-radius: var(--r-pill);
-  margin-bottom: 1.1rem;
 }
+/* Page strip: native horizontal scrolling with one-page snapping (js/tabring.js keeps it looping
+   and turns the 3D ring from the scroll position) */
+main {
+  display: flex; height: 100%;
+  overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; overflow-anchor: none;
+  scroll-snap-type: x mandatory; scrollbar-width: none;
+}
+main::-webkit-scrollbar { display: none; }
 .logo { font: 800 1.05rem var(--font-display); color: var(--ink); text-decoration: none; white-space: nowrap; }
 .logo b { color: var(--bubblegum-deep); }
 /* Theme switch: smoky liquid-glass track, glossy pearl thumb that glides with a spring */
@@ -84,9 +90,28 @@ p { margin: 0; }
   padding: 0.35rem 0.7rem; border-radius: var(--r-pill); color: var(--grape-deep); white-space: nowrap;
 }
 
-/* Panels (tabs). Moving between them is driven frame-by-frame by js/tabring.js. */
+/* Panels (tabs): one full-width page each, scrolling vertically on its own */
+.panel {
+  flex: 0 0 100%; height: 100%; overflow-y: auto; overflow-x: hidden; overscroll-behavior-y: contain;
+  scroll-snap-align: center; scroll-snap-stop: always;
+  /* content column centred at --maxw; room for the fixed top bar and the ring dock */
+  padding: 4.9rem max(1rem, calc((100% - var(--maxw)) / 2 + 1rem)) calc(var(--dock-h) + var(--safe-bottom) + 1.5rem);
+  transform-origin: 50% 0;
+}
 .panel:focus { outline: none; }
-.panel { transform-origin: 50% 0; } /* pages shrink toward their top while sliding */
+/* Leaving and arriving pages fade, blur and shrink with distance from centre, driven by the scroll
+   position itself (no script runs while scrolling). Browsers without scroll timelines just slide. */
+@supports (animation-timeline: view()) {
+  .panel { animation: page-fx linear both; animation-timeline: view(inline); }
+  @keyframes page-fx {
+    0%   { opacity: 0;    filter: blur(12px); transform: scale(0.96); }
+    28%  { opacity: 0.35; filter: blur(7px);  transform: scale(0.975); }
+    /* a clean zone around centre: a page at rest has no filter at all (crisp text, no extra layer) */
+    45%, 55% { opacity: 1; filter: none; transform: none; }
+    72%  { opacity: 0.35; filter: blur(7px);  transform: scale(0.975); }
+    100% { opacity: 0;    filter: blur(12px); transform: scale(0.96); }
+  }
+}
 @keyframes panel-in { from { opacity: 0; transform: translateY(14px) scale(0.98); } }
 
 /* Circular tab carousel docked at the bottom: cards on a 3D cylinder, current tab at the front */
@@ -104,7 +129,10 @@ p { margin: 0; }
   -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
   -webkit-mask: linear-gradient(0deg, #000 70%, transparent); mask: linear-gradient(0deg, #000 70%, transparent);
 }
-.ring-track { position: relative; height: 100%; transform-style: preserve-3d; will-change: transform; } /* moved by js/tabring.js physics */
+/* The track is a flat plane through the middle of the ring; as it rotates it can swing in front of
+   the side cards and swallow their taps, so only the cards themselves take pointer events. */
+.ring-track { position: relative; height: 100%; transform-style: preserve-3d; will-change: transform; pointer-events: none; }
+.ring-card { pointer-events: auto; }
 .ring-card {
   position: absolute; left: 50%; top: 6px; width: 96px; height: 78px; margin-left: -48px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
@@ -235,7 +263,16 @@ p { margin: 0; }
 .answer.correct { background: linear-gradient(135deg, rgba(127, 227, 192, 0.9), rgba(143, 208, 255, 0.6) 60%, rgba(38, 169, 126, 0.6)); }
 .answer.wrong { background: linear-gradient(135deg, rgba(255, 179, 138, 0.9), rgba(255, 217, 107, 0.55) 55%, rgba(255, 143, 191, 0.65)); animation: wiggle 0.4s; }
 @keyframes wiggle { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
-.feedback { margin-top: 0.9rem; padding: 0.9rem 1rem; border-radius: var(--r-md); font-weight: 700; }
+.feedback { margin-top: 0.9rem; padding: 0.9rem 1rem; border-radius: var(--r-md); font-weight: 700; animation: fb-in 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+/* Feedback box grows open (0fr → 1fr) so the buttons below glide down instead of jumping */
+.fb-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+.fb-wrap.open { grid-template-rows: 1fr; }
+.fb-inner { min-height: 0; overflow: hidden; }
+@keyframes fb-in { from { opacity: 0; transform: translateY(-8px) scale(0.98); } }
+/* Answers cascade in when a puzzle appears; the trophy pops on the finish card */
+.answers:not(.touched) .answer { animation: ans-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--n, 0) * 55ms + 90ms); }
+@keyframes ans-in { from { opacity: 0; transform: translateY(10px); } }
+.celebrate .big { animation: pop 0.7s var(--spring) 0.15s both; }
 .feedback strong { display: block; font: 800 1.1rem var(--font-display); }
 .q-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 1rem; }
 .celebrate { text-align: center; padding: 1.5rem 1.25rem; }

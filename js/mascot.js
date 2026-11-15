@@ -2,7 +2,7 @@
 // for each page's buddy stage. Every stage whose page is on screen animates each frame, so a
 // page sliding in during a swipe is already alive (no frozen frame, no swap when it lands).
 import * as THREE from "three";
-import { buildPanda } from "./panda.js?v=202611150309";
+import { buildPanda } from "./panda.js?v=202611150330";
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -55,14 +55,15 @@ export function createMascot() {
     cv.setAttribute("aria-hidden", "true");
     el.prepend(cv);
     el.classList.add("has-3d");
-    const s = { el, panel: el.closest(".panel"), panda, cv, ctx: cv.getContext("2d"), drawn: false };
+    const s = { el, panda, cv, ctx: cv.getContext("2d"), drawn: false };
 
     // Tap to tickle, drag to turn
     let dragging = false, lastX = 0, moved = 0;
-    cv.addEventListener("pointerdown", (e) => { dragging = true; moved = 0; lastX = e.clientX; cv.setPointerCapture(e.pointerId); });
+    cv.addEventListener("pointerdown", (e) => { dragging = true; moved = 0; lastX = e.clientX; if (e.pointerType !== "touch") cv.setPointerCapture(e.pointerId); });
     cv.addEventListener("pointermove", (e) => {
       if (!dragging) return;
       const dx = e.clientX - lastX; lastX = e.clientX; moved += Math.abs(dx);
+      if (e.pointerType === "touch") return; // touch drags are page swipes
       panda.root.rotation.y += dx * 0.012;
       s.drawn = false;
     });
@@ -81,7 +82,6 @@ export function createMascot() {
     play();
   });
   stages.forEach((s) => io.observe(s.el));
-  const faded = (s) => s.panel.style.visibility === "hidden" || (s.panel.style.opacity !== "" && +s.panel.style.opacity === 0);
 
   function draw(s, t, dt) {
     sizeTo(s.el);
@@ -99,7 +99,6 @@ export function createMascot() {
     const t = clock.getElapsedTime(), dt = Math.min(0.05, t - last);
     last = t;
     for (const s of inView) {
-      if (faded(s)) continue;
       if (!reduceMotion) draw(s, t, dt);
       else if (!s.drawn) draw(s, t, 1); // reduced motion: redraw only when something changed
     }

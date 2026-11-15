@@ -16,12 +16,13 @@ function show(tab) {
   current = tab;
 
   const swap = () => {
-    document.querySelectorAll("main > .panel").forEach((p) => { p.hidden = p.dataset.tab !== tab; });
+    // Every page stays laid out in the scroll strip; pages other than the current one are inert
+    // (skipped by keyboard and screen readers) rather than hidden.
+    document.querySelectorAll("main > .panel").forEach((p) => { p.inert = p.dataset.tab !== tab; });
     document.querySelectorAll("#tab-ring a[data-tab]").forEach((a) => {
       if (a.dataset.tab === tab) a.setAttribute("aria-current", "page");
       else a.removeAttribute("aria-current");
     });
-    window.scrollTo(0, 0);
     if (prev !== null) document.getElementById(`tab-${tab}`)?.focus({ preventScroll: true });
     listeners.forEach((fn) => fn(tab, prev));
   };

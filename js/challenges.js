@@ -1,5 +1,5 @@
 // Coding challenges: one card at a time, stars saved on this device
-import { CHALLENGES } from "./challenges-data.js?v=202611150309";
+import { CHALLENGES } from "./challenges-data.js?v=202611150330";
 
 const KEY = "gwc-expo-stars";
 
@@ -10,6 +10,8 @@ function saveSolved(set) {
   try { localStorage.setItem(KEY, JSON.stringify([...set])); } catch {}
 }
 
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 export function initChallenges({ bitsy = () => {} } = {}) {
@@ -29,15 +31,24 @@ export function initChallenges({ bitsy = () => {} } = {}) {
     count.textContent = `${solved.size} of ${CHALLENGES.length} stars`;
   }
 
-  function stepsHTML() {
-    return `<div class="steps" role="group" aria-label="Choose a challenge">` +
-      CHALLENGES.map((_, i) => `<button type="button" data-step="${i}" class="${solved.has(i) ? "done" : ""}" ${i === index && !showCelebrate ? 'aria-current="step"' : ""} aria-label="Challenge ${i + 1}${solved.has(i) ? ", solved" : ""}"></button>`).join("") +
-      `</div>`;
+  // Dots are built once and updated in place, so the current one morphs (width/colour transition)
+  root.innerHTML = `<div class="steps" role="group" aria-label="Choose a challenge">` +
+    CHALLENGES.map((_, i) => `<button type="button" data-step="${i}"></button>`).join("") + `</div><div class="q-slot"></div>`;
+  const dots = [...root.querySelectorAll(".steps button")];
+  const slot = root.querySelector(".q-slot");
+  function paintSteps() {
+    dots.forEach((d, i) => {
+      d.classList.toggle("done", solved.has(i));
+      if (i === index && !showCelebrate) d.setAttribute("aria-current", "step");
+      else d.removeAttribute("aria-current");
+      d.setAttribute("aria-label", `Challenge ${i + 1}${solved.has(i) ? ", solved" : ""}`);
+    });
   }
 
   function render() {
+    paintSteps();
     if (showCelebrate) {
-      root.innerHTML = stepsHTML() + `
+      slot.innerHTML = `
         <div class="clay card celebrate clay--mint">
           <div class="big" aria-hidden="true">🏆</div>
           <h2>You did it, coder!</h2>
@@ -54,7 +65,7 @@ export function initChallenges({ bitsy = () => {} } = {}) {
       ? `<pre class="code clay-well"><code>${c.code}</code></pre>`
       : `<div class="clay-well" style="display:flex;gap:.3rem;justify-content:center;padding:1rem;margin:.8rem 0 1rem" aria-label="Beads: ${c.beads.split("").join(" ")}">` +
         [...c.beads].map((b) => `<span class="bead" style="background:${b === "1" ? "var(--grape)" : "var(--bubblegum)"}">${b}</span>`).join("") + `</div>`;
-    root.innerHTML = stepsHTML() + `
+    slot.innerHTML = `
       <div class="clay card">
         <div class="q-meta">
           <span class="q-tag clay clay--${c.color}">${c.tag}</span>
@@ -63,9 +74,9 @@ export function initChallenges({ bitsy = () => {} } = {}) {
         <h2 id="q-title">${c.question}</h2>
         ${body}
         <div class="answers" role="group" aria-labelledby="q-title">
-          ${c.answers.map((a, i) => `<button class="answer glass" type="button" data-answer="${i}"><span class="mark" aria-hidden="true">${"ABCD"[i]}</span>${esc(a)}</button>`).join("")}
+          ${c.answers.map((a, i) => `<button class="answer glass" type="button" data-answer="${i}" style="--n:${i}"><span class="mark" aria-hidden="true">${"ABCD"[i]}</span>${esc(a)}</button>`).join("")}
         </div>
-        <div id="feedback" aria-live="polite"></div>
+        <div class="fb-wrap" aria-live="polite"><div class="fb-inner" id="feedback"></div></div>
         <div class="q-nav">
           <button class="btn glass" type="button" data-prev ${index === 0 ? "disabled" : ""}>← Back</button>
           <button class="btn btn--grape glass" type="button" data-next>${index === CHALLENGES.length - 1 ? "Finish ✦" : "Next →"}</button>
@@ -77,6 +88,8 @@ export function initChallenges({ bitsy = () => {} } = {}) {
     const c = CHALLENGES[index];
     const pick = Number(btn.dataset.answer);
     const fb = document.getElementById("feedback");
+    fb.parentElement.classList.add("open"); // the box grows open instead of shoving the buttons down
+    btn.parentElement.classList.add("touched"); // stop the entrance cascade so it can't replay
     root.querySelectorAll(".answer").forEach((b) => b.classList.remove("wrong"));
     if (pick === c.correct) {
       btn.classList.add("correct");
@@ -87,7 +100,7 @@ export function initChallenges({ bitsy = () => {} } = {}) {
       saveSolved(solved);
       paintStars(isNew ? solved.size - 1 : undefined);
       fb.innerHTML = `<div class="feedback clay clay--mint"><strong>Yes! ${isNew ? "+1 star ⭐" : "Nice!"}</strong>${esc(c.explain)}</div>`;
-      root.querySelectorAll(".steps button")[index]?.classList.add("done");
+      paintSteps();
       bitsy("cheer", solved.size === CHALLENGES.length ? "3 stars! You're a real coder! 🏆" : "You got it! ⭐ Tap Next!");
     } else {
       btn.classList.add("wrong");
@@ -96,33 +109,41 @@ export function initChallenges({ bitsy = () => {} } = {}) {
     }
   }
 
+  // Move to another puzzle: the card slides and blurs out, the next slides in from the side
+  // it comes from (forward = from the right). Clicks during the change are ignored.
+  let busy = false;
+  async function go(nextIndex, celebrate = false) {
+    if (busy || (nextIndex === index && celebrate === showCelebrate)) return;
+    const dir = celebrate || nextIndex > index ? 1 : -1;
+    const card = slot.querySelector(".card");
+    busy = true;
+    if (card && !reduceMotion.matches) {
+      await card.animate([{ opacity: 1, transform: "none", filter: "blur(0)" },
+        { opacity: 0, transform: `translateX(${-dir * 48}px) scale(0.97)`, filter: "blur(6px)" }],
+        { duration: 170, easing: "cubic-bezier(0.4, 0, 1, 1)", fill: "forwards" }).finished;
+    }
+    index = nextIndex; showCelebrate = celebrate;
+    render();
+    busy = false;
+    if (reduceMotion.matches) return;
+    slot.querySelector(".card").animate([{ opacity: 0, transform: `translateX(${dir * 48}px) scale(0.97)`, filter: "blur(6px)" },
+      { opacity: 1, transform: "none", filter: "blur(0)" }], { duration: 380, easing: EASE_OUT });
+  }
+
   root.addEventListener("click", (e) => {
     const t = e.target.closest("button");
     if (!t) return;
     if (t.dataset.answer !== undefined) return answer(t);
-    if (t.dataset.step !== undefined) { index = Number(t.dataset.step); showCelebrate = false; return render(); }
-    if (t.hasAttribute("data-prev")) { index = Math.max(0, index - 1); return render(); }
+    if (t.dataset.step !== undefined) return go(Number(t.dataset.step));
+    if (t.hasAttribute("data-prev")) return go(Math.max(0, index - 1));
     if (t.hasAttribute("data-next")) {
-      if (index < CHALLENGES.length - 1) index++;
-      else if (solved.size === CHALLENGES.length) showCelebrate = true;
-      else index = [...Array(CHALLENGES.length).keys()].find((i) => !solved.has(i));
-      return render();
+      if (index < CHALLENGES.length - 1) return go(index + 1);
+      if (solved.size === CHALLENGES.length) return go(index, true);
+      return go([...Array(CHALLENGES.length).keys()].find((i) => !solved.has(i)));
     }
     if (t.hasAttribute("data-reset")) {
-      solved.clear(); saveSolved(solved); index = 0; showCelebrate = false; paintStars(); render();
+      solved.clear(); saveSolved(solved); paintStars(); go(0);
     }
-  });
-
-  // Swipe left/right between challenges
-  let sx = null;
-  root.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
-  root.addEventListener("touchend", (e) => {
-    if (sx === null || showCelebrate) return;
-    const dx = e.changedTouches[0].clientX - sx;
-    sx = null;
-    if (Math.abs(dx) < 60) return;
-    const next = index + (dx < 0 ? 1 : -1);
-    if (next >= 0 && next < CHALLENGES.length) { index = next; render(); }
   });
 
   paintStars();

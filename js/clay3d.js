@@ -10,7 +10,7 @@ function clayMaterial(color) {
 
 /**
  * @param {HTMLElement} container
- * @param {{bits?: string, colors?: [string,string], blobs?: boolean}} opts
+ * @param {{bits?: string, colors?: [string,string], blobs?: boolean, touchSpin?: boolean}} opts
  */
 export function createBraceletScene(container, opts = {}) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
@@ -112,7 +112,10 @@ export function createBraceletScene(container, opts = {}) {
   // Drag to spin, with inertia
   let velocity = reduceMotion ? 0 : 0.006, dragging = false, lastX = 0;
   const el = renderer.domElement;
-  el.addEventListener("pointerdown", (e) => { dragging = true; lastX = e.clientX; el.setPointerCapture(e.pointerId); });
+  el.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "touch" && opts.touchSpin === false) return; // leave touch drags to page swipes
+    dragging = true; lastX = e.clientX; el.setPointerCapture(e.pointerId);
+  });
   el.addEventListener("pointermove", (e) => {
     if (!dragging) return;
     const dx = e.clientX - lastX;
